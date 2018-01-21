@@ -21,10 +21,11 @@ int main()
     EntityManager manager;
     Entity entity = manager.Create();
 
-    auto component = entity.AddComponent<Physics>(199, 199);
-    auto component2 = entity.AddComponent<Transform>(10, 20);
+    std::cout << entity.AddComponent<Physics>(200, 100).get()->xSpeed << std::endl;
+    std::cout << entity.AddComponent<Transform>(10, 20).get()->x << std::endl;
 
-    std::cout << component.get()->xSpeed << std::endl;
-    std::cout << component2.get()->x << std::endl;
+    std::cout << entity.GetComponent<Physics>().get()->ySpeed << std::endl;
+    std::cout << entity.GetComponent<Transform>().get()->y << std::endl;
+
     return 0;
 }

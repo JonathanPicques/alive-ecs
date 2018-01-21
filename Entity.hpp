@@ -43,9 +43,9 @@ public:
 public:
     bool Destroyed() const;
 public:
-    template<class C, typename ...Args>
+    template<typename C, typename ...Args>
     ComponentHandle<C> AddComponent(Args&& ...args);
-    template<class C>
+    template<typename C>
     ComponentHandle<C> GetComponent();
 public:
     EntityHandle mHandle;
@@ -82,9 +82,9 @@ public:
     EntityHandle NextHandle();
     bool HandleDestroyed(class EntityHandle handle) const;
 public:
-    template<class C, typename ...Args>
+    template<typename C, typename ...Args>
     ComponentHandle<C> AddComponent(EntityHandle handle, Args&& ...args);
-    template<class C>
+    template<typename C>
     ComponentHandle<C> GetComponent(EntityHandle handle);
 public:
     std::uint32_t mNextIndex = 0;
@@ -107,24 +107,27 @@ C* ComponentHandle<C>::get()
     {
         throw new std::logic_error("invalid entity handle");
     }
-    // TODO: iterator to return null
-    auto a = mEntityManager->mComponentLists[mEntityHandle.mIndex].mComponents.at(type_id<C>).get();
-    return &static_cast<ComponentContainer<C>*>(a)->mData;
+    auto &components = mEntityManager->mComponentLists[mEntityHandle.mIndex].mComponents;
+    auto componentContainerFound = components.find(type_id<C>);
+    if (componentContainerFound != components.end()) {
+       return &(static_cast<ComponentContainer<C> *>(componentContainerFound->second.get()))->mData;
+    }
+    return nullptr;
 }
 
-template<class C, typename... Args>
+template<typename C, typename... Args>
 ComponentHandle<C> Entity::AddComponent(Args&& ...args)
 {
     return mManager->AddComponent<C>(mHandle, std::forward<Args>(args)...);
 }
 
-template<class C>
+template<typename C>
 ComponentHandle<C> Entity::GetComponent()
 {
     return mManager->GetComponent<C>(mHandle);
 }
 
-template<class C, typename... Args>
+template<typename C, typename... Args>
 ComponentHandle<C> EntityManager::AddComponent(EntityHandle handle, Args&& ...args)
 {
     if (HandleDestroyed(handle))
@@ -135,7 +138,7 @@ ComponentHandle<C> EntityManager::AddComponent(EntityHandle handle, Args&& ...ar
     return ComponentHandle<C>(handle, this);
 }
 
-template<class C>
+template<typename C>
 ComponentHandle<C> EntityManager::GetComponent(EntityHandle handle)
 {
     if (HandleDestroyed(handle))
