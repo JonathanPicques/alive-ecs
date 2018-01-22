@@ -1,33 +1,53 @@
+#include <ios>
 #include <iostream>
+#include <core/entitymanager.hpp>
+#include "core/entity.hpp"
 
-#include "Entity.hpp"
-
-struct Transform
+class PhysicsComponent : public Component
 {
-    explicit Transform(int x, int y) : x(x), y(y)
-    {}
-    int x, y;
+public:
+    DECLARE_COMPONENT(PhysicsComponent)
+public:
+    float xSpeed = 32;
+    float ySpeed = 64;
 };
 
-struct Physics
+class TransformComponent : public Component
 {
-    explicit Physics(int x, int y) : xSpeed(x), ySpeed(y)
-    {}
-    int xSpeed, ySpeed;
+public:
+    DECLARE_COMPONENT(TransformComponent)
+public:
+    float x = 0;
+    float y = 0;
 };
+
+DEFINE_COMPONENT(PhysicsComponent);
+DEFINE_COMPONENT(TransformComponent);
 
 int main()
 {
     EntityManager manager;
-    Entity entity = manager.Create();
+    Entity &entity = *manager.Create();
 
-    std::cout << entity.AddComponent<Physics>(200, 100).get()->xSpeed << std::endl;
-    std::cout << entity.AddComponent<Transform>(10, 20).get()->x << std::endl;
+    entity.AddComponent<Component>();
+    entity.AddComponent<PhysicsComponent>();
+    entity.AddComponent<TransformComponent>();
 
-    std::cout << entity.GetComponent<Physics>().get()->ySpeed << std::endl;
-    std::cout << entity.GetComponent<Transform>().get()->y << std::endl;
+    auto physics = entity.GetComponent<PhysicsComponent>();
 
-    std::cout << std::boolalpha << entity.GetComponent<Physics>().Valid() << std::endl;
+    std::cout << std::boolalpha << entity.HasComponents<Component, PhysicsComponent>() << std::endl;
+
+    physics->xSpeed = 32;
+
+    manager.With<TransformComponent, PhysicsComponent>([](auto component, auto physics) {
+        std::cout << physics->xSpeed << std::endl;
+    });
+
+    entity.RemoveComponent<PhysicsComponent>();
+
+    manager.With<TransformComponent, PhysicsComponent>([](auto component, auto physics) {
+        std::cout << physics->xSpeed << std::endl;
+    });
 
     return 0;
 }
