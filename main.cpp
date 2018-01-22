@@ -1,59 +1,54 @@
 #include <ios>
+#include <cassert>
 #include <iostream>
-#include <core/entitymanager.hpp>
-#include "core/entity.hpp"
 
-class PhysicsComponent : public Component
-{
-public:
-    DECLARE_COMPONENT(PhysicsComponent)
-public:
-    float xSpeed = 32;
-    float ySpeed = 64;
-};
+#include "core/entitymanager.hpp"
 
 class TransformComponent : public Component
 {
 public:
-    DECLARE_COMPONENT(TransformComponent)
+    DECLARE_COMPONENT(TransformComponent);
 public:
     float x = 0;
     float y = 0;
 };
 
-DEFINE_COMPONENT(PhysicsComponent);
+class PhysicsComponent : public Component
+{
+public:
+    DECLARE_COMPONENT(PhysicsComponent);
+public:
+    float xSpeed = 0;
+    float ySpeed = 0;
+};
+
 DEFINE_COMPONENT(TransformComponent);
+DEFINE_COMPONENT(PhysicsComponent);
 
 int main()
 {
     EntityManager manager;
     Entity &entity = *manager.Create();
 
-    entity.AddComponent<Component>();
     entity.AddComponent<PhysicsComponent>();
     entity.AddComponent<TransformComponent>();
 
-    auto physics = entity.GetComponent<PhysicsComponent>();
+    entity.GetComponent<PhysicsComponent>()->xSpeed = 10;
+    entity.GetComponent<PhysicsComponent>()->ySpeed = 1;
 
-    std::cout << std::boolalpha << entity.HasComponents<Component, PhysicsComponent>() << std::endl;
-
-    physics->xSpeed = 32;
-
-    manager.With<TransformComponent, PhysicsComponent>([](auto e, auto component, auto physics) {
-        std::cout << physics->xSpeed << std::endl;
-    });
-
-    entity.RemoveComponent<PhysicsComponent>();
-
-    manager.With<TransformComponent, PhysicsComponent>([](auto e, auto component, auto physics) {
-        std::cout << physics->xSpeed << std::endl;
-    });
+    for (auto i = 0; i < 10; i++) {
+        // PhysicsSystem
+        manager.With<PhysicsComponent, TransformComponent>([](auto entity, auto physics, auto transform) {
+            transform->x += physics->xSpeed;
+            transform->y += physics->ySpeed;
+        });
+    }
 
     entity.With<TransformComponent>([](auto transform) {
-
+        assert(transform->x == 100);
+        assert(transform->y == 10);
+        std::cout << "Well done" << std::endl;
     });
-
-    auto transforms = manager.With<TransformComponent>();
 
     return 0;
 }

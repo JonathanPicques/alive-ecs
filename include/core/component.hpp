@@ -16,7 +16,7 @@ public:
     friend Entity;
 
 public:
-    virtual ~Component() = default;
+    virtual ~Component() = 0;
 
 protected:
     Entity* mEntity = nullptr;

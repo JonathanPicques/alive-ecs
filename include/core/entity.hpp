@@ -20,10 +20,6 @@ public:
 
 public:
     template<typename C>
-    bool HasComponents() const;
-    template<typename C1, typename C2, typename ...C>
-    bool HasComponents() const;
-    template<typename C>
     C* GetComponent();
     template<typename C, typename ...Args>
     C* AddComponent(Args&& ...args);
@@ -31,6 +27,18 @@ public:
     void RemoveComponent();
 
 public:
+    template<typename C>
+    bool HasComponent() const;
+    template<typename C1, typename C2, typename ...C>
+    bool HasComponent() const;
+    template<typename C>
+    bool HasAnyComponent() const;
+    template<typename C1, typename C2, typename ...C>
+    bool HasAnyComponent() const;
+
+public:
+    template<typename ...C>
+    bool Any(typename std::common_type<std::function<void(C* ...)>>::type view);
     template<typename ...C>
     bool With(typename std::common_type<std::function<void(C* ...)>>::type view);
 
@@ -41,18 +49,6 @@ private:
     EntityManager* mManager;
     std::map<const char*, std::unique_ptr<Component>> mComponents;
 };
-
-template<typename C>
-bool Entity::HasComponents() const
-{
-    return mComponents.find(C::ComponentName) != mComponents.end();
-}
-
-template<typename C1, typename C2, typename ...C>
-bool Entity::HasComponents() const
-{
-    return HasComponents<C1>() && HasComponents<C2, C...>();
-}
 
 template<typename C, typename ...Args>
 C* Entity::AddComponent(Args&& ...args)
@@ -85,10 +81,48 @@ void Entity::RemoveComponent()
     }
 }
 
+template<typename C>
+bool Entity::HasComponent() const
+{
+    return mComponents.find(C::ComponentName) != mComponents.end();
+}
+
+template<typename C1, typename C2, typename ...C>
+bool Entity::HasComponent() const
+{
+    return HasComponent<C1>() && HasComponent<C2, C...>();
+}
+
+template<typename C>
+bool Entity::HasAnyComponent() const
+{
+    return mComponents.find(C::ComponentName) != mComponents.end();
+}
+
+template<typename C1, typename C2, typename ...C>
+bool Entity::HasAnyComponent() const
+{
+    if (HasComponent<C1>()) {
+        return true;
+    }
+    return HasComponent<C2, C...>();
+}
+
+template<typename ...C>
+bool Entity::Any(typename std::common_type<std::function<void(C* ...)>>::type view)
+{
+    if (HasAnyComponent<C...>())
+    {
+        view(GetComponent<C>()...);
+        return true;
+    }
+    return false;
+}
+
 template<typename ...C>
 bool Entity::With(typename std::common_type<std::function<void(C* ...)>>::type view)
 {
-    if (HasComponents<C...>())
+    if (HasComponent<C...>())
     {
         view(GetComponent<C>()...);
         return true;
