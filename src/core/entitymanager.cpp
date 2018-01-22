@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "core/entitymanager.hpp"
 
-Entity *EntityManager::Create()
+Entity* EntityManager::Create()
 {
     auto entity = std::make_unique<Entity>(this);
     auto entityPtr = entity.get();
@@ -9,9 +9,9 @@ Entity *EntityManager::Create()
     return entityPtr;
 }
 
-void EntityManager::Destroy(Entity *entity)
+void EntityManager::Destroy(Entity* entity)
 {
-    auto found = std::find_if(mEntities.begin(), mEntities.end(), [&entity](auto const &e)
+    auto found = std::find_if(mEntities.begin(), mEntities.end(), [&entity](auto const& e)
     {
         return e.get() == entity;
     });

@@ -19,5 +19,5 @@ public:
     virtual ~Component() = default;
 
 protected:
-    Entity *mEntity = nullptr;
+    Entity* mEntity = nullptr;
 };

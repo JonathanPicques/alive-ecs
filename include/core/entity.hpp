@@ -11,12 +11,12 @@ class EntityManager;
 class Entity final
 {
 public:
-    explicit Entity(EntityManager *manager);
+    explicit Entity(EntityManager* manager);
 
 public:
-    Entity(Entity &&) = delete;
-    Entity(Entity const &) = delete;
-    Entity &operator=(Entity const &) = delete;
+    Entity(Entity&&) = delete;
+    Entity(Entity const&) = delete;
+    Entity& operator=(Entity const&) = delete;
 
 public:
     template<typename C>
@@ -24,22 +24,22 @@ public:
     template<typename C1, typename C2, typename ...C>
     bool HasComponents() const;
     template<typename C>
-    C *GetComponent();
+    C* GetComponent();
     template<typename C, typename ...Args>
-    C *AddComponent(Args &&...args);
+    C* AddComponent(Args&& ...args);
     template<typename C>
     void RemoveComponent();
 
 public:
     template<typename ...C>
-    bool With(typename std::common_type<std::function<void(C *...)>>::type view);
+    bool With(typename std::common_type<std::function<void(C* ...)>>::type view);
 
 public:
     void Destroy();
 
 private:
-    EntityManager *mManager;
-    std::map<const char *, std::unique_ptr<Component>> mComponents;
+    EntityManager* mManager;
+    std::map<const char*, std::unique_ptr<Component>> mComponents;
 };
 
 template<typename C>
@@ -55,7 +55,7 @@ bool Entity::HasComponents() const
 }
 
 template<typename C, typename ...Args>
-C *Entity::AddComponent(Args &&...args)
+C* Entity::AddComponent(Args&& ...args)
 {
     auto component = std::make_unique<C>(std::forward<Args>(args)...);
     auto componentPtr = component.get();
@@ -65,12 +65,12 @@ C *Entity::AddComponent(Args &&...args)
 }
 
 template<typename C>
-C *Entity::GetComponent()
+C* Entity::GetComponent()
 {
     auto found = mComponents.find(C::ComponentName);
     if (found != mComponents.end())
     {
-        return static_cast<C *>(found->second.get());
+        return static_cast<C*>(found->second.get());
     }
     return nullptr;
 }
@@ -86,7 +86,7 @@ void Entity::RemoveComponent()
 }
 
 template<typename ...C>
-bool Entity::With(typename std::common_type<std::function<void(C *...)>>::type view)
+bool Entity::With(typename std::common_type<std::function<void(C* ...)>>::type view)
 {
     if (HasComponents<C...>())
     {

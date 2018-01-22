@@ -53,5 +53,7 @@ int main()
 
     });
 
+    auto transforms = manager.With<TransformComponent>();
+
     return 0;
 }
