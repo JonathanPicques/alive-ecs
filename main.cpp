@@ -39,14 +39,18 @@ int main()
 
     physics->xSpeed = 32;
 
-    manager.With<TransformComponent, PhysicsComponent>([](auto component, auto physics) {
+    manager.With<TransformComponent, PhysicsComponent>([](auto e, auto component, auto physics) {
         std::cout << physics->xSpeed << std::endl;
     });
 
     entity.RemoveComponent<PhysicsComponent>();
 
-    manager.With<TransformComponent, PhysicsComponent>([](auto component, auto physics) {
+    manager.With<TransformComponent, PhysicsComponent>([](auto e, auto component, auto physics) {
         std::cout << physics->xSpeed << std::endl;
+    });
+
+    entity.With<TransformComponent>([](auto transform) {
+
     });
 
     return 0;

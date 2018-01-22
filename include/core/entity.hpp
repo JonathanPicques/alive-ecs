@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>
+#include <functional>
 
 #include "component.hpp"
 
@@ -14,20 +15,24 @@ public:
 
 public:
     Entity(Entity &&) = delete;
-    Entity(Entity const&) = delete;
-    Entity &operator=(Entity const&) = delete;
+    Entity(Entity const &) = delete;
+    Entity &operator=(Entity const &) = delete;
 
 public:
     template<typename C>
-    bool HasComponents();
+    bool HasComponents() const;
     template<typename C1, typename C2, typename ...C>
-    bool HasComponents();
+    bool HasComponents() const;
     template<typename C>
     C *GetComponent();
     template<typename C, typename ...Args>
     C *AddComponent(Args &&...args);
     template<typename C>
     void RemoveComponent();
+
+public:
+    template<typename ...C>
+    bool With(typename std::common_type<std::function<void(C *...)>>::type view);
 
 public:
     void Destroy();
@@ -38,13 +43,13 @@ private:
 };
 
 template<typename C>
-bool Entity::HasComponents()
+bool Entity::HasComponents() const
 {
     return mComponents.find(C::ComponentName) != mComponents.end();
 }
 
 template<typename C1, typename C2, typename ...C>
-bool Entity::HasComponents()
+bool Entity::HasComponents() const
 {
     return HasComponents<C1>() && HasComponents<C2, C...>();
 }
@@ -78,4 +83,15 @@ void Entity::RemoveComponent()
     {
         mComponents.erase(found);
     }
+}
+
+template<typename ...C>
+bool Entity::With(typename std::common_type<std::function<void(C *...)>>::type view)
+{
+    if (HasComponents<C...>())
+    {
+        view(GetComponent<C>()...);
+        return true;
+    }
+    return false;
 }

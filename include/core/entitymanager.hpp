@@ -12,15 +12,18 @@ public:
 
 public:
     template<typename ...C>
-    void With(typename std::common_type<std::function<void(C *...)>>::type view)
-    {
-        for (auto &entity : mEntities) {
-            if (entity->HasComponents<C...>()) {
-                view(entity->GetComponent<C>()...);
-            }
-        }
-    }
+    void With(typename std::common_type<std::function<void(Entity *, C *...)>>::type view);
 
 private:
     std::vector<std::unique_ptr<Entity>> mEntities;
 };
+
+template<typename ...C>
+void EntityManager::With(typename std::common_type<std::function<void(Entity *, C *...)>>::type view)
+{
+    for (auto &entity : mEntities) {
+        if (entity->HasComponents<C...>()) {
+            view(entity.get(), entity->template GetComponent<C>()...);
+        }
+    }
+}
