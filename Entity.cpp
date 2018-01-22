@@ -11,9 +11,9 @@ Entity::Entity(const EntityHandle& handle, EntityManager* manager) : mHandle(han
 
 }
 
-bool Entity::Destroyed() const
+bool Entity::Valid() const
 {
-    return !mManager->HandleDestroyed(mHandle);
+    return mManager->HandleValid(mHandle);
 }
 
 EntityHandle EntityManager::NextHandle()
@@ -54,11 +54,11 @@ void EntityManager::Destroy(EntityHandle handle)
     mFreeIndexes.emplace_back(handle.mIndex);
 }
 
-bool EntityManager::HandleDestroyed(EntityHandle handle) const
+bool EntityManager::HandleValid(EntityHandle handle) const
 {
     if (handle.mIndex > mComponentLists.size())
     {
         return false;
     }
-    return mInstances[handle.mIndex] != handle.mInstance;
+    return mInstances[handle.mIndex] == handle.mInstance;
 }

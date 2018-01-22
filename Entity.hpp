@@ -18,7 +18,7 @@ void type_id()
 class EntityHandle final
 {
 public:
-    EntityHandle(uint32_t mIndex, uint32_t mInstance);
+    EntityHandle(std::uint32_t mIndex, std::uint32_t mInstance);
 public:
     std::uint32_t mIndex = 0;
     std::uint32_t mInstance = 0;
@@ -29,6 +29,8 @@ class ComponentHandle final
 {
 public:
     ComponentHandle(EntityHandle handle, EntityManager* entityManager);
+public:
+    bool Valid() const;
 public:
     C* get();
 public:
@@ -41,7 +43,7 @@ class Entity
 public:
     Entity(const EntityHandle& handle, EntityManager* manager);
 public:
-    bool Destroyed() const;
+    bool Valid() const;
 public:
     template<typename C, typename ...Args>
     ComponentHandle<C> AddComponent(Args&& ...args);
@@ -80,7 +82,7 @@ public:
     void Destroy(class EntityHandle handle);
 public:
     EntityHandle NextHandle();
-    bool HandleDestroyed(class EntityHandle handle) const;
+    bool HandleValid(class EntityHandle handle) const;
 public:
     template<typename C, typename ...Args>
     ComponentHandle<C> AddComponent(EntityHandle handle, Args&& ...args);
@@ -103,7 +105,7 @@ ComponentHandle<C>::ComponentHandle(EntityHandle handle, EntityManager* entityMa
 template<typename C>
 C* ComponentHandle<C>::get()
 {
-    if (mEntityManager->HandleDestroyed(mEntityHandle))
+    if (mEntityManager->HandleValid(mEntityHandle))
     {
         throw new std::logic_error("invalid entity handle");
     }
@@ -113,6 +115,17 @@ C* ComponentHandle<C>::get()
        return &(static_cast<ComponentContainer<C> *>(componentContainerFound->second.get()))->mData;
     }
     return nullptr;
+}
+
+template<typename C>
+bool ComponentHandle<C>::Valid() const {
+    if (mEntityManager->HandleValid(mEntityHandle))
+    {
+        return false;
+    }
+    auto &components = mEntityManager->mComponentLists[mEntityHandle.mIndex].mComponents;
+    auto componentContainerFound = components.find(type_id<C>);
+    return componentContainerFound != components.end();
 }
 
 template<typename C, typename... Args>
@@ -130,22 +143,22 @@ ComponentHandle<C> Entity::GetComponent()
 template<typename C, typename... Args>
 ComponentHandle<C> EntityManager::AddComponent(EntityHandle handle, Args&& ...args)
 {
-    if (HandleDestroyed(handle))
+    if (HandleValid(handle))
     {
         throw new std::logic_error("invalid entity handle");
     }
     mComponentLists[handle.mIndex].mComponents[type_id<C>] = std::make_unique<ComponentContainer<C>>(C(std::forward<Args>(args)...));
-    return ComponentHandle<C>(handle, this);
+    return {handle, this};
 }
 
 template<typename C>
 ComponentHandle<C> EntityManager::GetComponent(EntityHandle handle)
 {
-    if (HandleDestroyed(handle))
+    if (HandleValid(handle))
     {
         throw new std::logic_error("invalid entity handle");
     }
-    return ComponentHandle<C>(handle, this);
+    return {handle, this};
 }
 
 template<typename T>

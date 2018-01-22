@@ -27,5 +27,7 @@ int main()
     std::cout << entity.GetComponent<Physics>().get()->ySpeed << std::endl;
     std::cout << entity.GetComponent<Transform>().get()->y << std::endl;
 
+    std::cout << std::boolalpha << entity.GetComponent<Physics>().Valid() << std::endl;
+
     return 0;
 }
