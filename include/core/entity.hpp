@@ -22,6 +22,9 @@ public:
     Entity& operator=(Entity const&) = delete;
 
 public:
+    EntityManager* GetManager();
+
+public:
     template<typename C>
     C* GetComponent();
     template<typename C, typename ...Args>
