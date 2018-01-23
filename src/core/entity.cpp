@@ -10,3 +10,8 @@ void Entity::Destroy()
 {
     mManager->Destroy(this);
 }
+
+bool Entity::IsDestroyed() const
+{
+    return mDestroyed;
+}
