@@ -2,37 +2,7 @@
 
 #include <core/entitymanager.hpp>
 
-class DummyComponent : public Component
-{
-public:
-    DECLARE_COMPONENT(DummyComponent);
-};
-DEFINE_COMPONENT(DummyComponent);
-
-class TransformComponent : public Component
-{
-public:
-    DECLARE_COMPONENT(TransformComponent);
-
-public:
-    TransformComponent(float x, float y) : mData{ x, y }
-    {}
-
-public:
-    float GetX() const
-    { return mData.x; }
-    float GetY() const
-    { return mData.y; }
-
-public:
-    struct
-    {
-        float x;
-        float y;
-    } mData;
-};
-
-DEFINE_COMPONENT(TransformComponent);
+#include "test_components/components.hpp"
 
 TEST(Components, AddComponent)
 {

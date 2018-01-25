@@ -6,8 +6,11 @@ set(CMAKE_CXX_STANDARD 14)
 # ECS library
 add_library(alive_ecs
         src/core/entity.cpp
+        include/core/entity.hpp
         src/core/component.cpp
-        src/core/entitymanager.cpp)
+        include/core/component.hpp
+        src/core/entitymanager.cpp
+        include/core/entitymanager.hpp)
 
 target_include_directories(alive_ecs
         PUBLIC
@@ -18,9 +21,12 @@ target_include_directories(alive_ecs
 # ECS tests
 enable_testing()
 add_executable(tests
+        tests/test_components/components.cpp
+        tests/test_components/components.hpp
         tests/entities_test.cpp
-        tests/components_test.cpp)
-add_subdirectory(tests/googletest-release-1.8.0)
+        tests/components_test.cpp
+        tests/entitymanager_test.cpp)
+add_subdirectory(tests/googletest)
 target_link_libraries(tests alive_ecs gtest_main)
 target_include_directories(tests PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_include_directories(tests PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/tests/1.8.0/googletest/include>)

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cstdint>
+#include <ostream>
 
-#define DEFINE_COMPONENT(NAME) constexpr const char* NAME::ComponentName
-#define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}
+#define DEFINE_COMPONENT(NAME) constexpr const char* NAME::ComponentName; const char* NAME::GetComponentName() const { return NAME::ComponentName; }
+#define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual const char *GetComponentName() const
 
 class Entity;
 
@@ -17,6 +17,9 @@ public:
 
 public:
     virtual ~Component() = 0;
+
+public:
+    virtual void Save(std::ostream &out) const;
 
 protected:
     Entity* mEntity = nullptr;

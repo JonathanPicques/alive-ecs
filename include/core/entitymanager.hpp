@@ -1,5 +1,7 @@
 #include <memory>
 #include <vector>
+#include <cstring>
+#include <fstream>
 #include <algorithm>
 #include <functional>
 
@@ -21,6 +23,21 @@ public:
     void With(typename std::common_type<std::function<void(Entity*, C* ...)>>::type view);
     template<typename ...C>
     std::vector<Entity*> With();
+
+public:
+    template<typename T>
+    void Save() const
+    {
+        std::filebuf fb;
+        fb.open("test.txt", std::ios::out);
+        std::ostream os(&fb);
+        for (auto const &entity : mEntities) {
+            for (auto const &component : entity->mComponents) {
+                os.write(component.second->GetComponentName(), std::strlen(component.second->GetComponentName()));
+                component.second->Save(os);
+            }
+        }
+    }
 
 private:
     std::vector<std::unique_ptr<Entity>> mEntities;
