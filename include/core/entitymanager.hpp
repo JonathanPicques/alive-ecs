@@ -25,11 +25,16 @@ public:
     std::vector<Entity*> With();
 
 public:
+    template<typename C>
+    void RegisterComponent();
+
+public:
     void Save(std::ostream &os) const;
     void Load(std::istream &is);
 
 private:
     std::vector<std::unique_ptr<Entity>> mEntities;
+    std::map<const char*, std::function<std::unique_ptr<Component>()>> mRegisteredComponents;
 };
 
 template<typename... C>
@@ -39,7 +44,7 @@ void EntityManager::Any(typename std::common_type<std::function<void(Entity*, C*
     {
         if (entity->HasAnyComponent<C...>())
         {
-            view(entity.get(), entity->template GetComponent<C>()...);
+            view(entity.get(), entity->GetComponent<C>()...);
         }
     }
 }
@@ -65,7 +70,7 @@ void EntityManager::With(typename std::common_type<std::function<void(Entity*, C
     {
         if (entity->HasComponent<C...>())
         {
-            view(entity.get(), entity->template GetComponent<C>()...);
+            view(entity.get(), entity->GetComponent<C>()...);
         }
     }
 }
@@ -82,4 +87,26 @@ std::vector<Entity*> EntityManager::With()
         }
     }
     return entities;
+}
+
+template<typename C>
+void EntityManager::RegisterComponent()
+{
+    mRegisteredComponents[C::ComponentName] = []()
+    {
+        return std::make_unique<C>();
+    };
+}
+
+// TODO: Bleurk, should be in Entity.hpp, but ... forward hell
+
+template<typename C, typename ...Args>
+C* Entity::AddComponent(Args&& ...args)
+{
+    mManager->RegisterComponent<C>();
+    auto component = std::make_unique<C>(std::forward<Args>(args)...);
+    auto componentPtr = component.get();
+    componentPtr->mEntity = this;
+    mComponents[C::ComponentName] = std::move(component);
+    return componentPtr;
 }

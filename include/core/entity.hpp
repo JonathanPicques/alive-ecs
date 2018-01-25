@@ -58,16 +58,6 @@ private:
     std::map<const char*, std::unique_ptr<Component>> mComponents;
 };
 
-template<typename C, typename ...Args>
-C* Entity::AddComponent(Args&& ...args)
-{
-    auto component = std::make_unique<C>(std::forward<Args>(args)...);
-    auto componentPtr = component.get();
-    componentPtr->mEntity = this;
-    mComponents[C::ComponentName] = std::move(component);
-    return componentPtr;
-}
-
 template<typename C>
 C* Entity::GetComponent()
 {
