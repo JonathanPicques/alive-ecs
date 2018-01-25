@@ -1,6 +1,9 @@
 language:
   - cpp
 
+dist:
+  - trusty
+
 addons:
   apt:
     sources:
@@ -8,6 +11,8 @@ addons:
 
 before_install:
   - pip install --user cpp-coveralls
+  - sudo apt-get install -qq g++-6
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
 
 script:
   - mkdir build
@@ -15,3 +20,6 @@ script:
   - cmake ..
   - make
   - ./tests
+
+after_success:
+  - coveralls --root .. -E ".*CMakeFiles.*" -E ".*tests.*"
