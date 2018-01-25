@@ -1,8 +1,34 @@
+#include <cstdint>
 #include <gtest/gtest.h>
 
 #include <core/entitymanager.hpp>
 
 #include "test_components/components.hpp"
+
+TEST(EntityManager, EntityManager_With)
+{
+    EntityManager manager;
+    auto entity = manager.Create();
+    entity->AddComponent<PhysicsComponent>();
+
+    auto entity2 = manager.Create();
+    entity2->AddComponent<PhysicsComponent>();
+
+    std::uint8_t count = 0;
+
+    manager.With<PhysicsComponent>([&](auto e, auto physics)
+                                   {
+                                       if (e == entity)
+                                       {
+
+                                       }
+                                       else if (e == entity2)
+                                       {
+
+                                       }
+                                   });
+
+}
 
 TEST(EntityManager, EntityManager_Save)
 {
