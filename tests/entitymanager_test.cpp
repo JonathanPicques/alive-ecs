@@ -9,10 +9,11 @@ TEST(EntityManager, EntityManager_With)
 {
     EntityManager manager;
     auto entity = manager.Create();
-    entity->AddComponent<PhysicsComponent>();
+    auto physics1 = entity->AddComponent<PhysicsComponent>();
 
     auto entity2 = manager.Create();
-    entity2->AddComponent<PhysicsComponent>();
+    auto physics2 = entity2->AddComponent<PhysicsComponent>();
+    auto transform2 = entity2->AddComponent<TransformComponent>();
 
     std::uint8_t count = 0;
 
@@ -20,13 +21,47 @@ TEST(EntityManager, EntityManager_With)
                                    {
                                        if (e == entity)
                                        {
-
+                                            ASSERT_EQ(physics, physics1);
                                        }
                                        else if (e == entity2)
                                        {
-
+                                           ASSERT_EQ(physics, physics2);
                                        }
+                                       else
+                                       {
+                                           FAIL();
+                                       }
+                                       count += 1;
                                    });
+
+    manager.With<PhysicsComponent, TransformComponent>([&](auto e, auto physics, auto transform)
+                                   {
+                                       ASSERT_EQ(e, entity2);
+                                       ASSERT_EQ(physics, physics);
+                                       ASSERT_EQ(transform2, transform);
+                                       count += 1;
+                                   });
+
+    manager.Any<PhysicsComponent, TransformComponent>([&](auto e, auto physics, auto transform)
+                                   {
+                                       if (e == entity)
+                                       {
+                                           ASSERT_EQ(physics, physics1);
+                                           ASSERT_EQ(transform, nullptr);
+                                       }
+                                       else if (e == entity2)
+                                       {
+                                           ASSERT_EQ(physics, physics2);
+                                           ASSERT_EQ(transform, transform2);
+                                       }
+                                       else
+                                       {
+                                           FAIL();
+                                       }
+                                       count += 1;
+                                   });
+
+    ASSERT_EQ(count, 5);
 
 }
 

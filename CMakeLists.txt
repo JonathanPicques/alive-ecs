@@ -20,13 +20,13 @@ target_include_directories(alive_ecs
 
 # ECS tests
 enable_testing()
-add_executable(tests
+add_executable(alive_tests
         tests/test_components/components.cpp
         tests/test_components/components.hpp
         tests/entities_test.cpp
         tests/components_test.cpp
         tests/entitymanager_test.cpp)
 add_subdirectory(tests/googletest)
-target_link_libraries(tests alive_ecs gtest_main)
-target_include_directories(tests PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_include_directories(tests PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/tests/1.8.0/googletest/include>)
+target_link_libraries(alive_tests alive_ecs gtest_main)
+target_include_directories(alive_tests PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(alive_tests PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/tests/1.8.0/googletest/include>)

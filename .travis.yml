@@ -22,7 +22,8 @@ script:
   - cd build
   - cmake ..
   - make
-  - ./tests
+  - ls && ls .. && ls ../..
+  - ./alive_tests
 
 after_success:
   - coveralls --root .. -E ".*CMakeFiles.*" -E ".*tests.*"
