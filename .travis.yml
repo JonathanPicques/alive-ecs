@@ -8,11 +8,10 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - g++-5
 
 before_install:
   - pip install --user cpp-coveralls
-  - sudo apt-get install -qq g++-6
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
 
 script:
   - mkdir build
