@@ -1,2 +1,17 @@
-language: cpp
-build_command: "mkdir build; cd build; cmake ..; make -j 2"
+language:
+  - cpp
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+
+before_install:
+  - pip install --user cpp-coveralls
+
+script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - ./tests
