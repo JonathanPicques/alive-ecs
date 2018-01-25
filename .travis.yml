@@ -1,8 +1,11 @@
 language:
-  - cpp
+  - generic
 
 dist:
   - trusty
+
+env:
+  - COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
 
 addons:
   apt:
