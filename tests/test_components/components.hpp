@@ -20,12 +20,15 @@ public:
     DECLARE_COMPONENT(TransformComponent);
 
 public:
+    TransformComponent()
+    {}
     TransformComponent(float x, float y) : mData{ x, y }
     {}
 
 public:
     void Save(std::ostream &out) const override
     {
+        static_assert(std::is_pod<decltype(TransformComponent::mData)>::value);
         out.write((char*) &mData, sizeof(mData));
     }
 

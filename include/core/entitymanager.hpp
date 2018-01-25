@@ -25,19 +25,8 @@ public:
     std::vector<Entity*> With();
 
 public:
-    template<typename T>
-    void Save() const
-    {
-        std::filebuf fb;
-        fb.open("test.txt", std::ios::out);
-        std::ostream os(&fb);
-        for (auto const &entity : mEntities) {
-            for (auto const &component : entity->mComponents) {
-                os.write(component.second->GetComponentName(), std::strlen(component.second->GetComponentName()));
-                component.second->Save(os);
-            }
-        }
-    }
+    void Save(std::ostream &os) const;
+    void Load(std::istream &is);
 
 private:
     std::vector<std::unique_ptr<Entity>> mEntities;

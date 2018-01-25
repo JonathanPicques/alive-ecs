@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <fstream>
 
 #include "core/entitymanager.hpp"
 
@@ -22,4 +21,23 @@ void EntityManager::DestroyEntities()
     {
         return e.get()->mDestroyed;
     }), mEntities.end());
+}
+
+void EntityManager::Save(std::ostream& os) const
+{
+    for (auto const& entity : mEntities)
+    {
+        os.write("{", 1);
+        for (auto const& component : entity->mComponents)
+        {
+            os.write(component.second->GetComponentName(), 1 + std::strlen(component.second->GetComponentName()));
+            component.second->Save(os);
+        }
+        os.write("}", 1);
+    }
+}
+
+void EntityManager::Load(std::istream& is)
+{
+    mEntities.clear();
 }
