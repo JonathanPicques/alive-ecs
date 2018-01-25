@@ -22,7 +22,6 @@ script:
   - cd build
   - cmake ..
   - make
-  - ls && ls .. && ls ../..
   - ./alive_tests
 
 after_success:
