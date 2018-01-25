@@ -1,0 +1,2 @@
+language: cpp
+build_command: "mkdir build; cd build; cmake ..; make -j 2"
