@@ -23,7 +23,7 @@ void EntityManager::DestroyEntities()
     }), mEntities.end());
 }
 
-void EntityManager::Save(std::ostream& os) const
+void EntityManager::Serialize(std::ostream& os) const
 {
     for (auto const& entity : mEntities)
     {
@@ -31,13 +31,13 @@ void EntityManager::Save(std::ostream& os) const
         for (auto const& component : entity->mComponents)
         {
             os.write(component.second->GetComponentName(), 1 + std::strlen(component.second->GetComponentName()));
-            component.second->Save(os);
+            component.second->Serialize(os);
         }
         os.write("}", 1);
     }
 }
 
-void EntityManager::Load(std::istream& is)
+void EntityManager::Deserialize(std::istream& is)
 {
     mEntities.clear();
     enum class mode_e
@@ -78,7 +78,7 @@ void EntityManager::Load(std::istream& is)
                 }
                 auto component = componentCreator->second();
                 entity->mComponents[componentName] = std::move(component);
-                entity->mComponents[componentName]->Load(is);
+                entity->mComponents[componentName]->Deserialize(is);
                 componentName.clear();
                 mode = mode_e::component_name;
             }

@@ -9,12 +9,12 @@ Component::~Component() // NOLINT
 
 }
 
-void Component::Save(std::ostream& os) const
+void Component::Serialize(std::ostream& os) const
 {
 
 }
 
-void Component::Load(std::istream& is)
+void Component::Deserialize(std::istream& is)
 {
 
 }

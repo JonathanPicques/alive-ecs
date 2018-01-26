@@ -96,14 +96,14 @@ TEST(EntityManager, EntityManager_Save_And_Load)
         std::ostream os(&f);
 
         f.open("save.bin", std::ios::out | std::ios::binary);
-        manager->Save(os);
+        manager->Serialize(os);
     }
 
     {
         std::filebuf f;
         std::istream is(&f);
         f.open("save.bin", std::ios::in | std::ios::binary);
-        manager->Load(is);
+        manager->Deserialize(is);
 
         auto entities_with_transform = manager->With<TransformComponent>();
         EXPECT_EQ(entities_with_transform.size(), 4);

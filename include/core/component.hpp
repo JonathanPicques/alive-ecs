@@ -19,8 +19,8 @@ public:
     virtual ~Component() = 0;
 
 public:
-    virtual void Save(std::ostream &os) const;
-    virtual void Load(std::istream &is);
+    virtual void Serialize(std::ostream &os) const;
+    virtual void Deserialize(std::istream &is);
 
 protected:
     Entity* mEntity = nullptr;

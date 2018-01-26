@@ -33,8 +33,8 @@ public:
 #endif
 
 public:
-    void Save(std::ostream &os) const;
-    void Load(std::istream &is);
+    void Serialize(std::ostream& os) const;
+    void Deserialize(std::istream& is);
 
 private:
     std::vector<std::unique_ptr<Entity>> mEntities;
