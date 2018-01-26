@@ -37,6 +37,9 @@ public:
     void RemoveComponent();
 
 public:
+    void ResolveComponentDependencies();
+
+public:
     template<typename C>
     bool HasComponent() const;
     template<typename C1, typename C2, typename ...C>

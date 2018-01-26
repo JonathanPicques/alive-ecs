@@ -17,6 +17,14 @@ EntityManager* Entity::GetManager()
     return mManager;
 }
 
+void Entity::ResolveComponentDependencies()
+{
+    for (auto &component : mComponents)
+    {
+        component->OnResolveDependencies();
+    }
+}
+
 void Entity::Destroy()
 {
     mManager->Destroy(this);
@@ -30,7 +38,7 @@ bool Entity::IsDestroyed() const
 void Entity::ConstructComponent(Component& component)
 {
     component.mEntity = this;
-    component.OnComponentLoaded();
+    component.OnLoad();
 }
 
 #if defined(_DEBUG)

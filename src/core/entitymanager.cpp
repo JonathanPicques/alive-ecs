@@ -68,10 +68,7 @@ void EntityManager::Deserialize(std::istream& is)
         {
             if (token == '}')
             {
-                for (auto &component : entity->mComponents)
-                {
-                    component->OnAllComponentLoaded();
-                }
+                entity->ResolveComponentDependencies();
                 mode = mode_e::entity_create;
             }
             else if (token == '\0')
@@ -84,8 +81,8 @@ void EntityManager::Deserialize(std::istream& is)
                 auto component = componentCreator->second();
                 auto componentPtr = component.get();
                 entity->mComponents.emplace_back(std::move(component));
-                entity->ConstructComponent(*componentPtr);
                 componentPtr->Deserialize(is);
+                entity->ConstructComponent(*componentPtr);
                 componentName.clear();
                 mode = mode_e::component_name;
             }

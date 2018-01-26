@@ -23,11 +23,11 @@ TEST(EntityManager, EntityManager_With)
                                     {
                                         if (e == entity)
                                         {
-                                            ASSERT_EQ(physics, physics1);
+                                            EXPECT_EQ(physics, physics1);
                                         }
                                         else if (e == entity2)
                                         {
-                                            ASSERT_EQ(physics, physics2);
+                                            EXPECT_EQ(physics, physics2);
                                         }
                                         else
                                         {
@@ -38,9 +38,9 @@ TEST(EntityManager, EntityManager_With)
 
     manager->With<PhysicsComponent, TransformComponent>([&](auto e, auto physics, auto transform)
                                                         {
-                                                            ASSERT_EQ(e, entity2);
-                                                            ASSERT_EQ(physics, physics);
-                                                            ASSERT_EQ(transform2, transform);
+                                                            EXPECT_EQ(e, entity2);
+                                                            EXPECT_EQ(physics, physics);
+                                                            EXPECT_EQ(transform2, transform);
                                                             count += 1;
                                                         });
 
@@ -48,13 +48,13 @@ TEST(EntityManager, EntityManager_With)
                                                        {
                                                            if (e == entity)
                                                            {
-                                                               ASSERT_EQ(physics, physics1);
-                                                               ASSERT_EQ(transform, nullptr);
+                                                               EXPECT_EQ(physics, physics1);
+                                                               EXPECT_EQ(transform, nullptr);
                                                            }
                                                            else if (e == entity2)
                                                            {
-                                                               ASSERT_EQ(physics, physics2);
-                                                               ASSERT_EQ(transform, transform2);
+                                                               EXPECT_EQ(physics, physics2);
+                                                               EXPECT_EQ(transform, transform2);
                                                            }
                                                            else
                                                            {
@@ -63,7 +63,7 @@ TEST(EntityManager, EntityManager_With)
                                                            count += 1;
                                                        });
 
-    ASSERT_EQ(count, 5);
+    EXPECT_EQ(count, 5);
 
 }
 
@@ -122,22 +122,22 @@ TEST(EntityManager, EntityManager_Save_And_Load)
         EXPECT_EQ(entities_with_transform.size(), 4);
 
         auto transform = entities_with_transform[0]->GetComponent<TransformComponent>();
-        EXPECT_NE(transform, nullptr);
+        ASSERT_NE(transform, nullptr);
         EXPECT_EQ(transform->GetX(), 32.0f);
         EXPECT_EQ(transform->GetY(), 64.0f);
 
         auto transform2 = entities_with_transform[1]->GetComponent<TransformComponent>();
-        EXPECT_NE(transform2, nullptr);
+        ASSERT_NE(transform2, nullptr);
         EXPECT_EQ(transform2->GetX(), 128.0f);
         EXPECT_EQ(transform2->GetY(), 128.0f);
 
         auto transform3 = entities_with_transform[2]->GetComponent<TransformComponent>();
-        EXPECT_NE(transform3, nullptr);
+        ASSERT_NE(transform3, nullptr);
         EXPECT_EQ(transform3->GetX(), 52.0f);
         EXPECT_EQ(transform3->GetY(), 89.0f);
 
         auto transform4 = entities_with_transform[3]->GetComponent<TransformComponent>();
-        EXPECT_NE(transform4, nullptr);
+        ASSERT_NE(transform4, nullptr);
         EXPECT_EQ(transform4->GetX(), 1.0f);
         EXPECT_EQ(transform4->GetY(), 1.0f);
     }

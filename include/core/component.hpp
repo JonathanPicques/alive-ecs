@@ -21,9 +21,9 @@ public:
 public:
     virtual ~Component() = 0;
 
-public:
-    virtual void OnComponentLoaded();
-    virtual void OnAllComponentLoaded();
+protected:
+    virtual void OnLoad();
+    virtual void OnResolveDependencies();
 
 protected:
     virtual void Serialize(std::ostream& os) const;

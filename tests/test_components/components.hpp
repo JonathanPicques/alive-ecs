@@ -6,19 +6,19 @@
 
 class EntityManager;
 
-class DummyComponent : public Component
+class DummyComponent final : public Component
 {
 public:
     DECLARE_COMPONENT(DummyComponent);
 };
 
-class PhysicsComponent : public Component
+class PhysicsComponent final : public Component
 {
 public:
     DECLARE_COMPONENT(PhysicsComponent);
 };
 
-class TransformComponent : public Component
+class TransformComponent final : public Component
 {
 public:
     DECLARE_COMPONENT(TransformComponent);
@@ -29,12 +29,12 @@ public:
     {}
 
 public:
-    void Serialize(std::ostream &out) const override
+    void Serialize(std::ostream& out) const override
     {
         static_assert(std::is_pod<decltype(TransformComponent::mData)>::value);
         out.write((char*) &mData, sizeof(mData));
     }
-    void Deserialize(std::istream &is) override
+    void Deserialize(std::istream& is) override
     {
         static_assert(std::is_pod<decltype(TransformComponent::mData)>::value);
         is.read((char*) &mData, sizeof(mData));
