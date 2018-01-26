@@ -9,6 +9,11 @@ Component::~Component() // NOLINT
 
 }
 
+void Component::OnComponentLoaded()
+{
+
+}
+
 void Component::Serialize(std::ostream&) const
 {
 
@@ -16,5 +21,5 @@ void Component::Serialize(std::ostream&) const
 
 void Component::Deserialize(std::istream&)
 {
-
+    OnComponentLoaded();
 }

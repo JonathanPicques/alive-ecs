@@ -7,6 +7,7 @@
 #define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual const char *GetComponentName() const
 
 class Entity;
+class EntityManager;
 
 class Component
 {
@@ -15,11 +16,15 @@ public:
 
 public:
     friend Entity;
+    friend EntityManager;
 
 public:
     virtual ~Component() = 0;
 
 public:
+    virtual void OnComponentLoaded();
+
+protected:
     virtual void Serialize(std::ostream &os) const;
     virtual void Deserialize(std::istream &is);
 

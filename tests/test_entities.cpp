@@ -43,11 +43,13 @@ TEST(Components, GetComponent)
     EXPECT_EQ(component2->GetX(), 32.0f);
     EXPECT_EQ(component2->GetY(), 64.0f);
 
-    entity->AddComponent<TransformComponent>(1.0f, 0.0f);
-    entity->AddComponent<TransformComponent>(2.0f, 0.0f);
-    entity->AddComponent<TransformComponent>(3.0f, 0.0f);
-    entity->AddComponent<TransformComponent>(4.0f, 0.0f);
-    ASSERT_EQ(entity->GetComponent<TransformComponent>()->GetX(), 4.0f);
+    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>(1.0f, 0.0f)));
+    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>(2.0f, 0.0f)));
+    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>(3.0f, 0.0f)));
+    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>(4.0f, 0.0f)));
+
+    ASSERT_EQ(entity->GetComponent<TransformComponent>()->GetX(), 32.0f);
+    ASSERT_EQ(entity->GetComponent<TransformComponent>()->GetY(), 64.0f);
 }
 
 TEST(Components, RemoveComponent)
@@ -58,18 +60,19 @@ TEST(Components, RemoveComponent)
     auto component = entity1->AddComponent<TransformComponent>(32.0f, 64.0f);
     ASSERT_EQ(entity1->GetComponent<TransformComponent>(), component);
     ASSERT_EQ(entity2->GetComponent<TransformComponent>(), nullptr);
+
     entity1->RemoveComponent<TransformComponent>();
     ASSERT_EQ(entity1->GetComponent<TransformComponent>(), nullptr);
-    entity1->RemoveComponent<TransformComponent>();
-    entity1->RemoveComponent<TransformComponent>();
-    entity1->RemoveComponent<TransformComponent>();
-    entity1->RemoveComponent<TransformComponent>();
-    entity1->RemoveComponent<TransformComponent>();
+
+    EXPECT_ANY_THROW(entity1->RemoveComponent<TransformComponent>());
     ASSERT_EQ(entity1->GetComponent<TransformComponent>(), nullptr);
+
     entity1->AddComponent<TransformComponent>(32.0f, 64.0f);
     ASSERT_NE(entity1->GetComponent<TransformComponent>(), nullptr);
-    entity1->RemoveComponent<DummyComponent>();
-    ASSERT_NE(entity1->GetComponent<TransformComponent>(), nullptr);
+
+    EXPECT_ANY_THROW(entity1->RemoveComponent<DummyComponent>());
+    ASSERT_EQ(entity1->GetComponent<DummyComponent>(), nullptr);
+
     entity1->RemoveComponent<TransformComponent>();
     ASSERT_EQ(entity1->GetComponent<TransformComponent>(), nullptr);
 }

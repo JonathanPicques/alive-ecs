@@ -31,8 +31,8 @@ void EntityManager::Serialize(std::ostream& os) const
         os.write("{", 1);
         for (auto const& component : entity->mComponents)
         {
-            os.write(component.second->GetComponentName(), 1 + std::strlen(component.second->GetComponentName()));
-            component.second->Serialize(os);
+            os.write(component->GetComponentName(), 1 + std::strlen(component->GetComponentName()));
+            component->Serialize(os);
         }
         os.write("}", 1);
     }
@@ -78,8 +78,10 @@ void EntityManager::Deserialize(std::istream& is)
                     throw std::logic_error(componentName + std::string { " is not registered" });
                 }
                 auto component = componentCreator->second();
-                entity->mComponents[componentName] = std::move(component);
-                entity->mComponents[componentName]->Deserialize(is);
+                auto componentPtr = component.get();
+                entity->mComponents.emplace_back(std::move(component));
+                entity->ConstructComponent(*componentPtr);
+                componentPtr->Deserialize(is);
                 componentName.clear();
                 mode = mode_e::component_name;
             }
