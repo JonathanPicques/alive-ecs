@@ -100,6 +100,18 @@ TEST(EntityManager, EntityManager_Save_And_Load)
     }
 
     {
+        entity3->Destroy();
+
+        manager->Create();
+        manager->Create();
+
+        entity2->Destroy();
+        entity4->Destroy();
+
+        manager->Create();
+
+        manager->DestroyEntities();
+
         std::filebuf f;
         std::istream is(&f);
         f.open("save.bin", std::ios::in | std::ios::binary);
