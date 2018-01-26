@@ -1,9 +1,6 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <cstring>
-#include <fstream>
-#include <algorithm>
 #include <functional>
 
 #include "entity.hpp"

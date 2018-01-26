@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <fstream>
 #include <gtest/gtest.h>
 
 #include <core/entitymanager.hpp>

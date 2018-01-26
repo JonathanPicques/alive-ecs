@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <istream>
 
 #define DEFINE_COMPONENT(NAME) constexpr const char* NAME::ComponentName; const char* NAME::GetComponentName() const { return NAME::ComponentName; }
 #define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual const char *GetComponentName() const
