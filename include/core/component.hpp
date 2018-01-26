@@ -3,8 +3,8 @@
 #include <ostream>
 #include <istream>
 
-#define DEFINE_COMPONENT(NAME) constexpr const char* NAME::ComponentName; const char* NAME::GetComponentName() const { return NAME::ComponentName; }
-#define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual const char *GetComponentName() const
+#define DEFINE_COMPONENT(NAME) constexpr const char* NAME::ComponentName; std::string NAME::GetComponentName() const { return NAME::ComponentName; }
+#define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual std::string GetComponentName() const
 
 class Entity;
 class EntityManager;
@@ -25,8 +25,8 @@ public:
     virtual void OnComponentLoaded();
 
 protected:
-    virtual void Serialize(std::ostream &os) const;
-    virtual void Deserialize(std::istream &is);
+    virtual void Serialize(std::ostream& os) const;
+    virtual void Deserialize(std::istream& is);
 
 protected:
     Entity* mEntity = nullptr;

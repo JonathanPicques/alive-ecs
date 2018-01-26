@@ -34,7 +34,7 @@ void Entity::ConstructComponent(Component& component)
 }
 
 #if defined(_DEBUG)
-void Entity::AssertComponentRegistered(const char* componentName) const
+void Entity::AssertComponentRegistered(const std::string& componentName) const
 {
     if (!mManager->IsComponentRegistered(componentName))
     {

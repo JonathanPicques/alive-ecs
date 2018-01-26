@@ -27,7 +27,7 @@ public:
     template<typename C>
     void RegisterComponent();
 #if defined(_DEBUG)
-    bool IsComponentRegistered(const char *componentName) const;
+    bool IsComponentRegistered(const std::string& componentName) const;
 #endif
 
 public:

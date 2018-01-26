@@ -31,7 +31,7 @@ void EntityManager::Serialize(std::ostream& os) const
         os.write("{", 1);
         for (auto const& component : entity->mComponents)
         {
-            os.write(component->GetComponentName(), 1 + std::strlen(component->GetComponentName()));
+            os.write(component->GetComponentName().c_str(), 1 + component->GetComponentName().size());
             component->Serialize(os);
         }
         os.write("}", 1);
@@ -94,7 +94,7 @@ void EntityManager::Deserialize(std::istream& is)
 }
 
 #if defined(_DEBUG)
-bool EntityManager::IsComponentRegistered(const char* componentName) const
+bool EntityManager::IsComponentRegistered(const std::string& componentName) const
 {
     return mRegisteredComponents.find(componentName) != mRegisteredComponents.end();
 }

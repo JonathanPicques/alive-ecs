@@ -59,7 +59,7 @@ private:
 
 private:
 #if defined(_DEBUG)
-    void AssertComponentRegistered(const char* componentName) const;
+    void AssertComponentRegistered(const std::string& componentName) const;
 #endif
 
 private:
@@ -124,7 +124,7 @@ bool Entity::HasComponent() const
 {
     return std::find_if(mComponents.begin(), mComponents.end(), [](auto& c)
     {
-        return std::string{ C::ComponentName } == std::string{ c->GetComponentName() };
+        return c->GetComponentName() == C::ComponentName;
     }) != mComponents.end();
 }
 
@@ -139,7 +139,7 @@ bool Entity::HasAnyComponent() const
 {
     return std::find_if(mComponents.begin(), mComponents.end(), [](auto& c)
     {
-        return std::string{ C::ComponentName } == std::string{ c->GetComponentName() };
+        return c->GetComponentName() == C::ComponentName;
     }) != mComponents.end();
 }
 
