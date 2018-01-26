@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 #include <functional>
 
 #include "component.hpp"
@@ -60,7 +61,7 @@ public:
 private:
     bool mDestroyed = false;
     EntityManager* mManager = nullptr;
-    std::map<const char*, std::unique_ptr<Component>> mComponents;
+    std::map<std::string, std::unique_ptr<Component>> mComponents;
 };
 
 template<typename C>

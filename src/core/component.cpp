@@ -9,7 +9,12 @@ Component::~Component() // NOLINT
 
 }
 
-void Component::Save(std::ostream& out) const
+void Component::Save(std::ostream& os) const
+{
+
+}
+
+void Component::Load(std::istream& is)
 {
 
 }

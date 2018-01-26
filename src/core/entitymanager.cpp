@@ -40,10 +40,58 @@ void EntityManager::Save(std::ostream& os) const
 void EntityManager::Load(std::istream& is)
 {
     mEntities.clear();
+    enum class mode_e
+    {
+        entity_create, component_name
+    };
+    auto mode = mode_e::entity_create;
+    Entity* entity = nullptr;
+    std::string componentName;
+    while (!is.eof())
+    {
+        char token;
+        is >> token;
+        if (mode == mode_e::entity_create)
+        {
+            if (token == '0')
+            {
+                break;
+            }
+            else if(token == '{')
+            {
+                entity = Create();
+                mode = mode_e::component_name;
+            }
+        }
+        else if (mode == mode_e::component_name)
+        {
+            if (token == '}')
+            {
+                mode = mode_e::entity_create;
+            }
+            else if (token == '\0')
+            {
+                auto componentCreator = mRegisteredComponents.find(componentName);
+                if (componentCreator == mRegisteredComponents.end())
+                {
+                    throw std::logic_error(componentName + std::string { " is not registered" });
+                }
+                auto component = componentCreator->second();
+                entity->mComponents[componentName] = std::move(component);
+                entity->mComponents[componentName]->Load(is);
+                componentName.clear();
+                mode = mode_e::component_name;
+            }
+            else
+            {
+                componentName += token;
+            }
+        }
+    }
 }
 
 #if defined(_DEBUG)
-bool EntityManager::IsComponentRegistered(const char *componentName) const
+bool EntityManager::IsComponentRegistered(const char* componentName) const
 {
     return mRegisteredComponents.find(componentName) != mRegisteredComponents.end();
 }
