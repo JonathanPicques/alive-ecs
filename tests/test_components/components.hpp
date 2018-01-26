@@ -1,6 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include <core/component.hpp>
+
+class EntityManager;
 
 class DummyComponent : public Component
 {
@@ -20,8 +24,7 @@ public:
     DECLARE_COMPONENT(TransformComponent);
 
 public:
-    TransformComponent()
-    {}
+    TransformComponent() = default;
     TransformComponent(float x, float y) : mData{ x, y }
     {}
 
@@ -43,5 +46,7 @@ public:
     {
         float x;
         float y;
-    } mData;
+    } mData = {};
 };
+
+std::unique_ptr<EntityManager> CreateEntityManager();

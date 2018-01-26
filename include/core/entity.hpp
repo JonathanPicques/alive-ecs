@@ -52,6 +52,11 @@ public:
     void Destroy();
     bool IsDestroyed() const;
 
+public:
+#if defined(_DEBUG)
+    void AssertComponentRegistered(const char *componentName) const;
+#endif
+
 private:
     bool mDestroyed = false;
     EntityManager* mManager = nullptr;
@@ -67,6 +72,19 @@ C* Entity::GetComponent()
         return static_cast<C*>(found->second.get());
     }
     return nullptr;
+}
+
+template<typename C, typename ...Args>
+C* Entity::AddComponent(Args&& ...args)
+{
+#if defined(_DEBUG)
+    AssertComponentRegistered(C::ComponentName);
+#endif
+    auto component = std::make_unique<C>(std::forward<Args>(args)...);
+    auto componentPtr = component.get();
+    componentPtr->mEntity = this;
+    mComponents[C::ComponentName] = std::move(component);
+    return componentPtr;
 }
 
 template<typename C>

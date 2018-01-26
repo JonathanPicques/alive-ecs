@@ -6,26 +6,26 @@
 
 TEST(Entities, Create_Destroy_DestroyEntities)
 {
-    EntityManager manager;
-    auto entity = manager.Create();
+    auto manager = CreateEntityManager();
+    auto entity = manager->Create();
     ASSERT_NE(entity, nullptr);
     ASSERT_FALSE(entity->IsDestroyed());
     entity->Destroy();
     ASSERT_TRUE(entity->IsDestroyed());
-    manager.DestroyEntities();
+    manager->DestroyEntities();
 
-    entity = manager.Create();
+    entity = manager->Create();
     ASSERT_NE(entity, nullptr);
     ASSERT_FALSE(entity->IsDestroyed());
     entity->Destroy();
     ASSERT_TRUE(entity->IsDestroyed());
-    manager.DestroyEntities();
+    manager->DestroyEntities();
 }
 
 TEST(Components, AddComponent)
 {
-    EntityManager manager;
-    auto entity = manager.Create();
+    auto manager = CreateEntityManager();
+    auto entity = manager->Create();
     auto component = entity->AddComponent<TransformComponent>(32.0f, 64.0f);
     EXPECT_EQ(component->GetX(), 32.0f);
     EXPECT_EQ(component->GetY(), 64.0f);
@@ -33,8 +33,8 @@ TEST(Components, AddComponent)
 
 TEST(Components, GetComponent)
 {
-    EntityManager manager;
-    auto entity = manager.Create();
+    auto manager = CreateEntityManager();
+    auto entity = manager->Create();
     ASSERT_EQ(entity->GetComponent<TransformComponent>(), nullptr);
 
     auto component1 = entity->AddComponent<TransformComponent>(32.0f, 64.0f);
@@ -52,9 +52,9 @@ TEST(Components, GetComponent)
 
 TEST(Components, RemoveComponent)
 {
-    EntityManager manager;
-    auto entity1 = manager.Create();
-    auto entity2 = manager.Create();
+    auto manager = CreateEntityManager();
+    auto entity1 = manager->Create();
+    auto entity2 = manager->Create();
     auto component = entity1->AddComponent<TransformComponent>(32.0f, 64.0f);
     ASSERT_EQ(entity1->GetComponent<TransformComponent>(), component);
     ASSERT_EQ(entity2->GetComponent<TransformComponent>(), nullptr);
@@ -76,8 +76,8 @@ TEST(Components, RemoveComponent)
 
 TEST(Components, Has_Component)
 {
-    EntityManager manager;
-    auto entity = manager.Create();
+    auto manager = CreateEntityManager();
+    auto entity = manager->Create();
     EXPECT_FALSE(entity->HasComponent<DummyComponent>());
     EXPECT_FALSE(entity->HasComponent<TransformComponent>());
     EXPECT_FALSE((entity->HasComponent<DummyComponent, TransformComponent>()));

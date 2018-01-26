@@ -41,3 +41,10 @@ void EntityManager::Load(std::istream& is)
 {
     mEntities.clear();
 }
+
+#if defined(_DEBUG)
+bool EntityManager::IsComponentRegistered(const char *componentName) const
+{
+    return mRegisteredComponents.find(componentName) != mRegisteredComponents.end();
+}
+#endif

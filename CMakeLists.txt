@@ -11,12 +11,12 @@ add_library(alive_ecs
         include/core/component.hpp
         src/core/entitymanager.cpp
         include/core/entitymanager.hpp)
-
 target_include_directories(alive_ecs
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         PRIVATE src)
+target_compile_definitions(alive_ecs PUBLIC _DEBUG=1)
 
 # ECS tests
 enable_testing()
