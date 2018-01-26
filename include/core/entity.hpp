@@ -29,6 +29,8 @@ public:
 public:
     template<typename C>
     C* GetComponent();
+    template<typename C>
+    const C* GetComponent() const;
     template<typename C, typename ...Args>
     C* AddComponent(Args&& ...args);
     template<typename C>
@@ -71,9 +73,15 @@ private:
 template<typename C>
 C* Entity::GetComponent()
 {
-    auto found = std::find_if(mComponents.begin(), mComponents.end(), [](auto& c)
+    return const_cast<C*>(static_cast<const Entity*>(this)->GetComponent<C>());
+}
+
+template<typename C>
+const C* Entity::GetComponent() const
+{
+    auto found = std::find_if(mComponents.begin(), mComponents.end(), [](const auto& c)
     {
-        return std::string{ C::ComponentName } == std::string{ c->GetComponentName() };
+        return c->GetComponentName() == C::ComponentName;
     });
     if (found != mComponents.end())
     {
@@ -109,7 +117,7 @@ void Entity::RemoveComponent()
     {
         throw std::logic_error(std::string{ "Entity::RemoveComponent: Component " } + C::ComponentName + std::string{ " not found" });
     }
-    auto found = std::find_if(mComponents.begin(), mComponents.end(), [](auto& c)
+    auto found = std::find_if(mComponents.begin(), mComponents.end(), [](const auto& c)
     {
         return std::string{ C::ComponentName } == std::string{ c->GetComponentName() };
     });
@@ -122,10 +130,7 @@ void Entity::RemoveComponent()
 template<typename C>
 bool Entity::HasComponent() const
 {
-    return std::find_if(mComponents.begin(), mComponents.end(), [](auto& c)
-    {
-        return c->GetComponentName() == C::ComponentName;
-    }) != mComponents.end();
+    return GetComponent<C>() != nullptr;
 }
 
 template<typename C1, typename C2, typename ...C>
@@ -137,10 +142,7 @@ bool Entity::HasComponent() const
 template<typename C>
 bool Entity::HasAnyComponent() const
 {
-    return std::find_if(mComponents.begin(), mComponents.end(), [](auto& c)
-    {
-        return c->GetComponentName() == C::ComponentName;
-    }) != mComponents.end();
+    return GetComponent<C>() != nullptr;
 }
 
 template<typename C1, typename C2, typename ...C>
