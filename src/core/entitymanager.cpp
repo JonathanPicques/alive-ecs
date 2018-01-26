@@ -68,6 +68,10 @@ void EntityManager::Deserialize(std::istream& is)
         {
             if (token == '}')
             {
+                for (auto &component : entity->mComponents)
+                {
+                    component->OnAllComponentLoaded();
+                }
                 mode = mode_e::entity_create;
             }
             else if (token == '\0')

@@ -14,6 +14,11 @@ void Component::OnComponentLoaded()
 
 }
 
+void Component::OnAllComponentLoaded()
+{
+
+}
+
 void Component::Serialize(std::ostream&) const
 {
 

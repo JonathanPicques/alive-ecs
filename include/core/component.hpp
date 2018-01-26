@@ -23,6 +23,7 @@ public:
 
 public:
     virtual void OnComponentLoaded();
+    virtual void OnAllComponentLoaded();
 
 protected:
     virtual void Serialize(std::ostream& os) const;
