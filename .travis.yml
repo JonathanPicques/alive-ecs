@@ -14,15 +14,9 @@ addons:
     packages:
       - g++-6
 
-before_install:
-  - pip install --user cpp-coveralls
-
 script:
   - mkdir build
   - cd build
   - cmake ..
   - make
   - ./alive_tests
-
-after_success:
-  - coveralls --exclude tests --gcov-options '\-lp'
