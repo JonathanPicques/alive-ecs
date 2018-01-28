@@ -74,23 +74,31 @@ TEST(EntityManager, EntityManager_Save_And_Load)
     auto entity = manager->Create();
     entity->AddComponent<DummyComponent>();
     entity->AddComponent<PhysicsComponent>();
-    entity->AddComponent<TransformComponent>(32.0f, 64.0f);
+    auto transform = entity->AddComponent<TransformComponent>();
+    transform->mData.x = 32.0f;
+    transform->mData.y = 64.0f;
 
     auto entity2 = manager->Create();
     entity2->AddComponent<DummyComponent>();
     entity2->AddComponent<PhysicsComponent>();
-    entity2->AddComponent<TransformComponent>(128.0f, 128.0f);
+    transform = entity2->AddComponent<TransformComponent>();
+    transform->mData.x = 128.0f;
+    transform->mData.y = 128.0f;
 
     auto entity3 = manager->Create();
     entity3->AddComponent<PhysicsComponent>();
-    entity3->AddComponent<TransformComponent>(52.0f, 89.0f);
+    transform = entity3->AddComponent<TransformComponent>();
+    transform->mData.x = 52.0f;
+    transform->mData.y = 89.0f;
 
     manager->Create();
     manager->Create();
     manager->Create();
 
     auto entity4 = manager->Create();
-    entity4->AddComponent<TransformComponent>(1.0f, 1.0f);
+    transform = entity4->AddComponent<TransformComponent>();
+    transform->mData.x = 1.0f;
+    transform->mData.y = 1.0f;
 
     {
         std::filebuf f;
@@ -121,10 +129,10 @@ TEST(EntityManager, EntityManager_Save_And_Load)
         auto entities_with_transform = manager->With<TransformComponent>();
         EXPECT_EQ(entities_with_transform.size(), 4);
 
-        auto transform = entities_with_transform[0]->GetComponent<TransformComponent>();
-        ASSERT_NE(transform, nullptr);
-        EXPECT_EQ(transform->GetX(), 32.0f);
-        EXPECT_EQ(transform->GetY(), 64.0f);
+        auto transform1 = entities_with_transform[0]->GetComponent<TransformComponent>();
+        ASSERT_NE(transform1, nullptr);
+        EXPECT_EQ(transform1->GetX(), 32.0f);
+        EXPECT_EQ(transform1->GetY(), 64.0f);
 
         auto transform2 = entities_with_transform[1]->GetComponent<TransformComponent>();
         ASSERT_NE(transform2, nullptr);

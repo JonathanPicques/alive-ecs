@@ -26,9 +26,9 @@ TEST(Components, AddComponent)
 {
     auto manager = CreateEntityManager();
     auto entity = manager->Create();
-    auto component = entity->AddComponent<TransformComponent>(32.0f, 64.0f);
-    EXPECT_EQ(component->GetX(), 32.0f);
-    EXPECT_EQ(component->GetY(), 64.0f);
+    auto component = entity->AddComponent<TransformComponent>();
+    EXPECT_EQ(component->GetX(), 0.0f);
+    EXPECT_EQ(component->GetY(), 0.0f);
 }
 
 TEST(Components, GetComponent)
@@ -37,16 +37,20 @@ TEST(Components, GetComponent)
     auto entity = manager->Create();
     EXPECT_EQ(entity->GetComponent<TransformComponent>(), nullptr);
 
-    auto component1 = entity->AddComponent<TransformComponent>(32.0f, 64.0f);
+    auto component1 = entity->AddComponent<TransformComponent>();
     auto component2 = entity->GetComponent<TransformComponent>();
+
+    component1->mData.x = 32.0f;
+    component1->mData.y = 64.0f;
+
     EXPECT_EQ(component1, component2);
     EXPECT_EQ(component2->GetX(), 32.0f);
     EXPECT_EQ(component2->GetY(), 64.0f);
 
-    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>(1.0f, 0.0f)));
-    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>(2.0f, 0.0f)));
-    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>(3.0f, 0.0f)));
-    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>(4.0f, 0.0f)));
+    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>()));
+    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>()));
+    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>()));
+    EXPECT_ANY_THROW((entity->AddComponent<TransformComponent>()));
 
     EXPECT_EQ(entity->GetComponent<TransformComponent>()->GetX(), 32.0f);
     EXPECT_EQ(entity->GetComponent<TransformComponent>()->GetY(), 64.0f);
@@ -57,7 +61,7 @@ TEST(Components, RemoveComponent)
     auto manager = CreateEntityManager();
     auto entity1 = manager->Create();
     auto entity2 = manager->Create();
-    auto component = entity1->AddComponent<TransformComponent>(32.0f, 64.0f);
+    auto component = entity1->AddComponent<TransformComponent>();
     EXPECT_EQ(entity1->GetComponent<TransformComponent>(), component);
     EXPECT_EQ(entity2->GetComponent<TransformComponent>(), nullptr);
 
@@ -67,7 +71,7 @@ TEST(Components, RemoveComponent)
     EXPECT_ANY_THROW(entity1->RemoveComponent<TransformComponent>());
     EXPECT_EQ(entity1->GetComponent<TransformComponent>(), nullptr);
 
-    entity1->AddComponent<TransformComponent>(32.0f, 64.0f);
+    entity1->AddComponent<TransformComponent>();
     ASSERT_NE(entity1->GetComponent<TransformComponent>(), nullptr);
 
     EXPECT_ANY_THROW(entity1->RemoveComponent<DummyComponent>());
@@ -91,7 +95,7 @@ TEST(Components, Has_Component)
     EXPECT_FALSE((entity->HasComponent<DummyComponent, TransformComponent>()));
     EXPECT_TRUE((entity->HasAnyComponent<DummyComponent, TransformComponent>()));
 
-    entity->AddComponent<TransformComponent>(32.0f, 64.0f);
+    entity->AddComponent<TransformComponent>();
     EXPECT_TRUE((entity->HasComponent<DummyComponent, TransformComponent>()));
     EXPECT_TRUE((entity->HasComponent<TransformComponent, DummyComponent>()));
     EXPECT_TRUE((entity->HasAnyComponent<DummyComponent, TransformComponent>()));

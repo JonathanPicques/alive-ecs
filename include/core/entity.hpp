@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <vector>
 #include <string>
-#include <functional>
 #include <algorithm>
+#include <functional>
 
 #include "component.hpp"
 
@@ -31,8 +31,8 @@ public:
     C* GetComponent();
     template<typename C>
     const C* GetComponent() const;
-    template<typename C, typename ...Args>
-    C* AddComponent(Args&& ...args);
+    template<typename C>
+    C* AddComponent();
     template<typename C>
     void RemoveComponent();
 
@@ -93,17 +93,17 @@ const C* Entity::GetComponent() const
     return nullptr;
 }
 
-template<typename C, typename ...Args>
-C* Entity::AddComponent(Args&& ...args)
+template<typename C>
+C* Entity::AddComponent()
 {
 #if defined(_DEBUG)
     AssertComponentRegistered(C::ComponentName);
 #endif
     if (HasComponent<C>())
     {
-        throw std::logic_error(std::string{ "Entity::AddComponent: Component " } + C::ComponentName + std::string{ " already exists" });
+        throw std::logic_error(std::string{"Entity::AddComponent: Component "} + C::ComponentName + std::string{" already exists"});
     }
-    auto component = std::make_unique<C>(std::forward<Args>(args)...);
+    auto component = std::make_unique<C>();
     auto componentPtr = component.get();
     mComponents.emplace_back(std::move(component));
     ConstructComponent(*componentPtr);
@@ -118,11 +118,11 @@ void Entity::RemoveComponent()
 #endif
     if (!HasComponent<C>())
     {
-        throw std::logic_error(std::string{ "Entity::RemoveComponent: Component " } + C::ComponentName + std::string{ " not found" });
+        throw std::logic_error(std::string{"Entity::RemoveComponent: Component "} + C::ComponentName + std::string{" not found"});
     }
     auto found = std::find_if(mComponents.begin(), mComponents.end(), [](const auto& c)
     {
-        return std::string{ C::ComponentName } == std::string{ c->GetComponentName() };
+        return C::ComponentName == c->GetComponentName();
     });
     if (found != mComponents.end())
     {
