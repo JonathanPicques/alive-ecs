@@ -31,12 +31,12 @@ public:
 public:
     void Serialize(std::ostream& out) const override
     {
-        static_assert(std::is_pod<decltype(TransformComponent::mData)>::value);
+        static_assert(std::is_pod<decltype(TransformComponent::mData)>::value, "TransformComponent is not POD");
         out.write((char*) &mData, sizeof(mData));
     }
     void Deserialize(std::istream& is) override
     {
-        static_assert(std::is_pod<decltype(TransformComponent::mData)>::value);
+        static_assert(std::is_pod<decltype(TransformComponent::mData)>::value, "TransformComponent is not POD");
         is.read((char*) &mData, sizeof(mData));
     }
 
