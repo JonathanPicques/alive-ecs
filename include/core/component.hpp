@@ -3,8 +3,11 @@
 #include <ostream>
 #include <istream>
 
+#define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual std::string GetComponentName() const override
 #define DEFINE_COMPONENT(NAME) constexpr const char* NAME::ComponentName; std::string NAME::GetComponentName() const { return NAME::ComponentName; }
-#define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual std::string GetComponentName() const
+
+#define DECLARE_ROOT_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual std::string GetComponentName() const
+#define DEFINE_ROOT_COMPONENT(NAME) constexpr const char* NAME::ComponentName; std::string NAME::GetComponentName() const { return NAME::ComponentName; }
 
 class Entity;
 class EntityManager;
@@ -12,7 +15,7 @@ class EntityManager;
 class Component
 {
 public:
-    DECLARE_COMPONENT(Component);
+    DECLARE_ROOT_COMPONENT(Component);
 
 public:
     friend Entity;
@@ -32,3 +35,5 @@ protected:
 protected:
     Entity* mEntity = nullptr;
 };
+
+#undef DECLARE_ROOT_COMPONENT
