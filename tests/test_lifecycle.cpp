@@ -53,7 +53,7 @@ TEST(Lifecycle, Dependency_Manual_Lifecycle)
     manager.RegisterComponent<HeartComponent>();
     manager.RegisterComponent<LegMuscleComponent>();
 
-    auto entity = manager.Create();
+    auto entity = manager.CreateEntity();
     auto leg = entity->AddComponent<LegMuscleComponent>(); // depends on heart and body
     auto heart = entity->AddComponent<HeartComponent>(); // depends on body
     auto body = entity->AddComponent<BodyComponent>(); // depends on heart
@@ -80,7 +80,7 @@ TEST(Lifecycle, Dependency_Automatic_Lifecycle)
     manager.RegisterComponent<HeartComponent>();
     manager.RegisterComponent<LegMuscleComponent>();
 
-    auto entity = manager.CreateWith<HeartComponent, BodyComponent, LegMuscleComponent>();
+    auto entity = manager.CreateEntityWith<HeartComponent, BodyComponent, LegMuscleComponent>();
 
     auto leg = entity->GetComponent<LegMuscleComponent>(); // depends on heart and body
     auto heart = entity->GetComponent<HeartComponent>(); // depends on body
@@ -99,7 +99,7 @@ TEST(Lifecycle, Dependency_Mixed_Manual_Automatic_Lifecycle)
     manager.RegisterComponent<HeartComponent>();
     manager.RegisterComponent<LegMuscleComponent>();
 
-    auto entity = manager.CreateWith<HeartComponent, LegMuscleComponent>();
+    auto entity = manager.CreateEntityWith<HeartComponent, LegMuscleComponent>();
 
     auto body = entity->AddComponent<BodyComponent>(); // depends on heart
     auto leg = entity->GetComponent<LegMuscleComponent>(); // depends on heart and body

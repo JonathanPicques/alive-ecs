@@ -3,7 +3,7 @@
 
 #include "core/entitymanager.hpp"
 
-Entity* EntityManager::Create()
+Entity* EntityManager::CreateEntity()
 {
     auto entity = std::make_unique<Entity>(this);
     auto entityPtr = entity.get();
@@ -11,7 +11,7 @@ Entity* EntityManager::Create()
     return entityPtr;
 }
 
-void EntityManager::Destroy(Entity* entity)
+void EntityManager::DestroyEntity(Entity* entity)
 {
     entity->mDestroyed = true;
 }
@@ -60,7 +60,7 @@ void EntityManager::Deserialize(std::istream& is)
             }
             else if(token == '{')
             {
-                entity = Create();
+                entity = CreateEntity();
                 mode = mode_e::component_name;
             }
         }

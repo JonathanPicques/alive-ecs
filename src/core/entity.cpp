@@ -27,7 +27,7 @@ void Entity::ResolveComponentDependencies()
 
 void Entity::Destroy()
 {
-    mManager->Destroy(this);
+    mManager->DestroyEntity(this);
 }
 
 bool Entity::IsDestroyed() const

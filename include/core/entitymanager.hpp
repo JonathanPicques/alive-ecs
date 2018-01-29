@@ -9,18 +9,18 @@
 class EntityManager final
 {
 public:
-    Entity* Create();
+    Entity* CreateEntity();
     template<typename ...C>
-    Entity* CreateWith();
+    Entity* CreateEntityWith();
 
 private:
     template<typename C>
-    void DispatchCreateWith(Entity *entity);
+    void CreateEntityWith(Entity* entity);
     template<typename C1, typename C2, typename ...C>
-    void DispatchCreateWith(Entity *entity);
+    void CreateEntityWith(Entity* entity);
 
 public:
-    void Destroy(Entity* entity);
+    void DestroyEntity(Entity* entity);
     void DestroyEntities();
 
 public:
@@ -50,25 +50,25 @@ private:
 };
 
 template<typename ...C>
-Entity* EntityManager::CreateWith()
+Entity* EntityManager::CreateEntityWith()
 {
-    auto entity = Create();
-    DispatchCreateWith<C...>(entity);
+    auto entity = CreateEntity();
+    CreateEntityWith<C...>(entity);
     entity->ResolveComponentDependencies();
     return entity;
 }
 
 template<typename C>
-void EntityManager::DispatchCreateWith(Entity *entity)
+void EntityManager::CreateEntityWith(Entity* entity)
 {
     entity->AddComponent<C>();
 }
 
 template<typename C1, typename C2, typename ...C>
-void EntityManager::DispatchCreateWith(Entity *entity)
+void EntityManager::CreateEntityWith(Entity* entity)
 {
-    DispatchCreateWith<C1>(entity);
-    DispatchCreateWith<C2, C...>(entity);
+    CreateEntityWith<C1>(entity);
+    CreateEntityWith<C2, C...>(entity);
 };
 
 template<typename... C>

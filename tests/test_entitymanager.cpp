@@ -10,10 +10,10 @@ TEST(EntityManager, EntityManager_With)
 {
     auto manager = CreateEntityManager();
 
-    auto entity = manager->Create();
+    auto entity = manager->CreateEntity();
     auto physics1 = entity->AddComponent<PhysicsComponent>();
 
-    auto entity2 = manager->Create();
+    auto entity2 = manager->CreateEntity();
     auto physics2 = entity2->AddComponent<PhysicsComponent>();
     auto transform2 = entity2->AddComponent<TransformComponent>();
 
@@ -71,31 +71,31 @@ TEST(EntityManager, EntityManager_Save_And_Load)
 {
     auto manager = CreateEntityManager();
 
-    auto entity = manager->Create();
+    auto entity = manager->CreateEntity();
     entity->AddComponent<DummyComponent>();
     entity->AddComponent<PhysicsComponent>();
     auto transform = entity->AddComponent<TransformComponent>();
     transform->mData.x = 32.0f;
     transform->mData.y = 64.0f;
 
-    auto entity2 = manager->Create();
+    auto entity2 = manager->CreateEntity();
     entity2->AddComponent<DummyComponent>();
     entity2->AddComponent<PhysicsComponent>();
     transform = entity2->AddComponent<TransformComponent>();
     transform->mData.x = 128.0f;
     transform->mData.y = 128.0f;
 
-    auto entity3 = manager->Create();
+    auto entity3 = manager->CreateEntity();
     entity3->AddComponent<PhysicsComponent>();
     transform = entity3->AddComponent<TransformComponent>();
     transform->mData.x = 52.0f;
     transform->mData.y = 89.0f;
 
-    manager->Create();
-    manager->Create();
-    manager->Create();
+    manager->CreateEntity();
+    manager->CreateEntity();
+    manager->CreateEntity();
 
-    auto entity4 = manager->Create();
+    auto entity4 = manager->CreateEntity();
     transform = entity4->AddComponent<TransformComponent>();
     transform->mData.x = 1.0f;
     transform->mData.y = 1.0f;
@@ -111,13 +111,13 @@ TEST(EntityManager, EntityManager_Save_And_Load)
     {
         entity3->Destroy();
 
-        manager->Create();
-        manager->Create();
+        manager->CreateEntity();
+        manager->CreateEntity();
 
         entity2->Destroy();
         entity4->Destroy();
 
-        manager->Create();
+        manager->CreateEntity();
 
         manager->DestroyEntities();
 
