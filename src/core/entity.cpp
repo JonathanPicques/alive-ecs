@@ -19,7 +19,7 @@ EntityManager* Entity::GetManager()
 
 void Entity::ResolveComponentDependencies()
 {
-    for (auto &component : mComponents)
+    for (auto& component : mComponents)
     {
         component->OnResolveDependencies();
     }

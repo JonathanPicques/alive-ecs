@@ -2,9 +2,11 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <utility>
 #include <functional>
 
 #include "entity.hpp"
+#include "system.hpp"
 
 class EntityManager final
 {
@@ -34,17 +36,34 @@ public:
     std::vector<Entity*> With();
 
 public:
+    template<typename S, typename ...Args>
+    S* AddSystem(Args&& ...args);
+    template<typename S>
+    S* GetSystem();
+    template<typename S>
+    const S* GetSystem() const;
+    template<typename S>
+    void RemoveSystem();
+    template<typename S>
+    bool HasSystem();
+
+private:
+    void ConstructSystem(System& system);
+
+public:
     template<typename C>
     void RegisterComponent();
-#if defined(_DEBUG)
     bool IsComponentRegistered(const std::string& componentName) const;
-#endif
+
+public:
+    void Update();
 
 public:
     void Serialize(std::ostream& os) const;
     void Deserialize(std::istream& is);
 
 private:
+    std::vector<std::unique_ptr<System>> mSystems;
     std::vector<std::unique_ptr<Entity>> mEntities;
     std::map<std::string, std::function<std::unique_ptr<Component>()>> mRegisteredComponents;
 };
@@ -130,4 +149,61 @@ void EntityManager::RegisterComponent()
     {
         return std::make_unique<C>();
     };
+}
+
+template<typename S, typename... Args>
+S* EntityManager::AddSystem(Args&& ... args)
+{
+    if (HasSystem<S>())
+    {
+        throw std::logic_error(std::string{ "EntityManager::AddSystem: System " } + S::SystemName + std::string{ " already exists" });
+    }
+    auto system = std::make_unique<S>(std::forward<Args>(args)...);
+    auto systemPtr = system.get();
+    mSystems.emplace_back(std::move(system));
+    ConstructSystem(*systemPtr);
+    return systemPtr;
+}
+
+template<typename S>
+S* EntityManager::GetSystem()
+{
+    return const_cast<S*>(static_cast<const EntityManager*>(this)->GetSystem<S>());
+}
+
+template<typename S>
+const S* EntityManager::GetSystem() const
+{
+    auto found = std::find_if(mSystems.begin(), mSystems.end(), [](const auto& s)
+    {
+        return s->GetSystemName() == S::SystemName;
+    });
+    if (found != mSystems.end())
+    {
+        return static_cast<S*>(found->get());
+    }
+    return nullptr;
+}
+
+template<typename S>
+void EntityManager::RemoveSystem()
+{
+    if (!HasSystem<S>())
+    {
+        throw std::logic_error(std::string{ "EntityManager::RemoveSystem: System " } + S::SystemName + std::string{ " not found" });
+    }
+    auto found = std::find_if(mSystems.begin(), mSystems.end(), [](const auto& s)
+    {
+        return s->GetSystemName() == S::SystemName;
+    });
+    if (found != mSystems.end())
+    {
+        mSystems.erase(found);
+    }
+}
+
+template<typename S>
+bool EntityManager::HasSystem()
+{
+    return GetSystem<S>() != nullptr;
 }

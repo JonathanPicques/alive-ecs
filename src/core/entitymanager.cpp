@@ -24,6 +24,25 @@ void EntityManager::DestroyEntities()
     }), mEntities.end());
 }
 
+void EntityManager::ConstructSystem(System& system)
+{
+
+}
+
+bool EntityManager::IsComponentRegistered(const std::string& componentName) const
+{
+    return mRegisteredComponents.find(componentName) != mRegisteredComponents.end();
+}
+
+void EntityManager::Update()
+{
+    for (auto& system : mSystems)
+    {
+        system->Update();
+    }
+    DestroyEntities();
+}
+
 void EntityManager::Serialize(std::ostream& os) const
 {
     for (auto const& entity : mEntities)
@@ -58,7 +77,7 @@ void EntityManager::Deserialize(std::istream& is)
             {
                 break;
             }
-            else if(token == '{')
+            else if (token == '{')
             {
                 entity = CreateEntity();
                 mode = mode_e::component_name;
@@ -93,10 +112,3 @@ void EntityManager::Deserialize(std::istream& is)
         }
     }
 }
-
-#if defined(_DEBUG)
-bool EntityManager::IsComponentRegistered(const std::string& componentName) const
-{
-    return mRegisteredComponents.find(componentName) != mRegisteredComponents.end();
-}
-#endif
