@@ -26,7 +26,8 @@ void EntityManager::DestroyEntities()
 
 void EntityManager::ConstructSystem(System& system)
 {
-
+    system.mManager = this;
+    system.OnLoad();
 }
 
 bool EntityManager::IsComponentRegistered(const std::string& componentName) const
