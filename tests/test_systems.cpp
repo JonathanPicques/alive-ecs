@@ -14,6 +14,18 @@ TEST(System, AddSystem)
     EXPECT_EQ(world->mNetworkState, &networkState);
     EXPECT_EQ(world, manager.GetSystem<WorldStateSystem>());
 
-    const auto* const world2 =  manager.GetSystem<WorldStateSystem>();
-    // world2->Update();
+    EXPECT_ANY_THROW((manager.AddSystem<WorldStateSystem>(nullptr, nullptr)));
+    EXPECT_ANY_THROW((manager.AddSystem<WorldStateSystem>(nullptr, nullptr)));
+}
+
+TEST(System, RemoveSystem)
+{
+    EntityManager manager;
+    EXPECT_ANY_THROW((manager.RemoveSystem<WorldStateSystem>()));
+    EXPECT_ANY_THROW((manager.RemoveSystem<WorldStateSystem>()));
+    manager.AddSystem<WorldStateSystem>(nullptr, nullptr);
+    EXPECT_NE(nullptr, manager.GetSystem<WorldStateSystem>());
+    manager.RemoveSystem<WorldStateSystem>();
+    EXPECT_ANY_THROW((manager.RemoveSystem<WorldStateSystem>()));
+    EXPECT_ANY_THROW((manager.RemoveSystem<WorldStateSystem>()));
 }
