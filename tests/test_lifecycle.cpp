@@ -14,7 +14,7 @@ protected:
 public:
     class HeartComponent *mHeartComponent = nullptr;
 };
-DEFINE_COMPONENT(BodyComponent)
+DEFINE_COMPONENT(BodyComponent);
 
 class HeartComponent final : public Component
 {
