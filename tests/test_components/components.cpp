@@ -1,7 +1,3 @@
-//
-// Created by John on 25/01/2018.
-//
-
 #include <core/entitymanager.hpp>
 
 #include "components.hpp"
