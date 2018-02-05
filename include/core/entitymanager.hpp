@@ -110,9 +110,9 @@ private:
     };
 
 private:
-    std::uint16_t mIndex = {};
-    std::vector<std::uint16_t> mVersions = {};
-    std::vector<std::uint16_t> mFreeIndexes = {};
+    Entity::PointerSize mIndex = {};
+    std::vector<Entity::PointerSize> mVersions = {};
+    std::vector<Entity::PointerSize> mFreeIndexes = {};
     std::vector<std::unique_ptr<System>> mSystems = {};
     std::vector<EntityComponentContainer> mEntityComponents = {};
     std::unordered_map<std::string, std::function<std::unique_ptr<Component>()>> mRegisteredComponents = {};
@@ -389,7 +389,7 @@ bool EntityManager::EntityWith(const Entity::Pointer& entityPointer, typename st
 template<typename... C>
 void EntityManager::Any(typename std::common_type<std::function<void(Entity entity, C* ...)>>::type view)
 {
-    for (std::uint16_t i = 0; i < mEntityComponents.size(); ++i)
+    for (Entity::PointerSize i = 0; i < mEntityComponents.size(); ++i)
     {
         auto entity = Entity(this, Entity::Pointer(i, mVersions[i]));
         if (entity.HasAnyComponent<C...>())
@@ -403,7 +403,7 @@ template<typename... C>
 std::vector<Entity> EntityManager::Any()
 {
     std::vector<Entity> entities;
-    for (std::uint16_t i = 0; i < mEntityComponents.size(); ++i)
+    for (Entity::PointerSize i = 0; i < mEntityComponents.size(); ++i)
     {
         auto entity = Entity(this, Entity::Pointer(i, mVersions[i]));
         if (entity.HasAnyComponent<C...>())
@@ -417,7 +417,7 @@ std::vector<Entity> EntityManager::Any()
 template<typename... C>
 void EntityManager::With(typename std::common_type<std::function<void(Entity entity, C* ...)>>::type view)
 {
-    for (std::uint16_t i = 0; i < mEntityComponents.size(); ++i)
+    for (Entity::PointerSize i = 0; i < mEntityComponents.size(); ++i)
     {
         if (mEntityComponents[i].mCreated)
         {
@@ -434,7 +434,7 @@ template<typename... C>
 std::vector<Entity> EntityManager::With()
 {
     std::vector<Entity> entities;
-    for (std::uint16_t i = 0; i < mEntityComponents.size(); ++i)
+    for (Entity::PointerSize i = 0; i < mEntityComponents.size(); ++i)
     {
         if (mEntityComponents[i].mCreated)
         {

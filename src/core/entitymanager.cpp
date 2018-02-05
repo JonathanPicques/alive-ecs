@@ -1,4 +1,4 @@
-#include <cassert>
+#include <sstream>
 #include <ostream>
 #include <istream>
 #include <cstring>
@@ -53,7 +53,12 @@ bool EntityManager::EntityPointerValid(const Entity::Pointer& entityPointer) con
 
 void EntityManager::AssertEntityPointerValid(const Entity::Pointer& entityPointer) const
 {
-    assert(EntityPointerValid(entityPointer));
+    if (!EntityPointerValid(entityPointer))
+    {
+        std::stringstream errorFormat;
+        errorFormat << "Entity::Pointer invalid: " << entityPointer.mIndex << "(" << entityPointer.mIndex << ")";
+        throw std::logic_error(errorFormat.str());
+    }
 }
 
 void EntityManager::EntityConstructComponent(Component* component, const Entity::Pointer& entityPointer)

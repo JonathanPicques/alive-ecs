@@ -15,13 +15,16 @@ public:
     friend EntityManager;
 
 public:
+    using PointerSize = std::uint16_t;
+
+public:
     class Pointer final
     {
     public:
         friend EntityManager;
 
     public:
-        Pointer(std::uint16_t index, std::uint16_t version);
+        Pointer(PointerSize index, PointerSize version);
 
     public:
         Pointer(Pointer&&) = default;
@@ -32,8 +35,8 @@ public:
         friend bool operator==(const Pointer& a, const Pointer& b);
 
     private:
-        std::uint16_t mIndex = {};
-        std::uint16_t mVersion = {};
+        PointerSize mIndex = {};
+        PointerSize mVersion = {};
     };
 
 public:

@@ -11,11 +11,22 @@ TEST(Entities, CreateDestroyEntities)
     EXPECT_FALSE(entity.IsDestroyed());
     entity.Destroy();
     EXPECT_TRUE(entity.IsDestroyed());
+    EXPECT_ANY_THROW(entity.Destroy());
 
     auto entity2 = manager->CreateEntity();
     EXPECT_FALSE(entity2.IsDestroyed());
     entity2.Destroy();
     EXPECT_TRUE(entity2.IsDestroyed());
+
+    auto entity3 = manager->CreateEntity();
+    auto entity4 = manager->CreateEntity();
+    auto entity5 = manager->CreateEntity();
+    EXPECT_FALSE(entity3.IsDestroyed());
+    EXPECT_FALSE(entity4.IsDestroyed());
+    EXPECT_FALSE(entity5.IsDestroyed());
+    EXPECT_TRUE(entity2.IsDestroyed());
+
+    EXPECT_ANY_THROW(entity.Destroy());
 }
 
 TEST(Components, AddComponent)
