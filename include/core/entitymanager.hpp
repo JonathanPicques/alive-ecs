@@ -105,10 +105,7 @@ private:
     class EntityComponentContainer final
     {
     public:
-        bool operator==(const EntityComponentContainer& other)
-        {
-            return mCreated == other.mCreated && mComponents == other.mComponents;
-        }
+        bool operator==(const EntityComponentContainer& other);
 
     public:
         bool mCreated = false;

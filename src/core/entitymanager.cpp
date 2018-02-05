@@ -112,3 +112,8 @@ EntityManager::ConstIterator EntityManager::end() const
 {
     return { *this, static_cast<Entity::PointerSize>(mEntityComponents.size()) };
 }
+
+bool EntityManager::EntityComponentContainer::operator==(const EntityManager::EntityComponentContainer& other)
+{
+    return mCreated == other.mCreated && mComponents == other.mComponents;
+}
