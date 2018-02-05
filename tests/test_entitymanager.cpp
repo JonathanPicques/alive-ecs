@@ -92,13 +92,15 @@ TEST(EntityManager, EntityManager_Save_And_Load)
     transform->mData.y = 89.0f;
 
     manager->CreateEntity();
-    manager->CreateEntity();
-    manager->CreateEntity();
+    manager->CreateEntity().Destroy();
+    manager->CreateEntity().Destroy();
 
     auto entity4 = manager->CreateEntity();
     transform = entity4.AddComponent<TransformComponent>();
     transform->mData.x = 1.0f;
     transform->mData.y = 1.0f;
+
+    manager->CreateEntity();
 
     {
         std::filebuf f;
@@ -125,7 +127,7 @@ TEST(EntityManager, EntityManager_Save_And_Load)
         manager->Deserialize(is);
 
         auto entities_with_transform = manager->With<TransformComponent>();
-        EXPECT_EQ(entities_with_transform.size(), 4);
+        ASSERT_EQ(entities_with_transform.size(), 4);
 
         auto transform1 = entities_with_transform[0].GetComponent<TransformComponent>();
         ASSERT_NE(transform1, nullptr);

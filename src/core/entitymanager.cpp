@@ -1,3 +1,4 @@
+#include <cstring>
 #include <sstream>
 #include <ostream>
 #include <istream>
@@ -8,15 +9,14 @@
 
 Entity EntityManager::CreateEntity()
 {
-    std::uint16_t index;
-    std::uint16_t version;
+    Entity::PointerSize index;
+    Entity::PointerSize version;
     if (mFreeIndexes.empty())
     {
         index = mIndex++;
         version = 0;
         mVersions.resize(index + 1);
         mEntityComponents.resize(index + 1);
-        mEntityComponents[index].mCreated = true;
     }
     else
     {
@@ -31,19 +31,92 @@ void EntityManager::DestroyEntity(Entity::Pointer& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
     mVersions[entityPointer.mIndex] += 1;
-    mEntityComponents[entityPointer.mIndex].mCreated = false;
-    mEntityComponents[entityPointer.mIndex].mComponents.clear();
+    mEntityComponents[entityPointer.mIndex].clear();
     mFreeIndexes.push_back(entityPointer.mIndex);
 }
 
 void EntityManager::Serialize(std::ostream& os) const
 {
-    throw std::logic_error("not yet implemented");
+    for (auto entity : *this)
+    {
+        os << '{';
+        os.write(reinterpret_cast<char*>(&entity.mPointer.mIndex), sizeof(entity.mPointer.mIndex));
+        os.write(reinterpret_cast<char*>(&entity.mPointer.mVersion), sizeof(entity.mPointer.mVersion));
+        for (const auto& component : mEntityComponents[entity.mPointer.mIndex])
+        {
+            os.write(component->GetComponentName().c_str(), 1 + component->GetComponentName().size());
+            component->Serialize(os);
+        }
+        os << '}';
+    }
 }
 
 void EntityManager::Deserialize(std::istream& is)
 {
-    throw std::logic_error("not yet implemented");
+
+    mIndex = 0;
+    mVersions.clear();
+    mFreeIndexes.clear();
+    mEntityComponents.clear(); // TODO: clear entity manager
+
+    enum class ParsingState
+    {
+        eEntity,
+        eComponentName,
+    };
+    auto state = ParsingState::eEntity;
+    std::unique_ptr<Entity> entity;
+    std::string componentName;
+    while (!is.eof())
+    {
+        char token;
+        is >> token;
+        if (state == ParsingState::eEntity)
+        {
+            if (token == '0')
+            {
+                break;
+            }
+            else if (token == '{')
+            {
+                // TODO: handle sparse entities free indexes
+                entity = std::make_unique<Entity>(CreateEntity());
+                is.read(reinterpret_cast<char*>(&entity->mPointer.mIndex), sizeof(entity->mPointer.mIndex));
+                is.read(reinterpret_cast<char*>(&entity->mPointer.mVersion), sizeof(entity->mPointer.mVersion));
+                mVersions.resize(entity->mPointer.mIndex + 1);
+                mEntityComponents.resize(entity->mPointer.mIndex + 1);
+                mVersions[entity->mPointer.mIndex] = entity->mPointer.mVersion;
+                state = ParsingState::eComponentName;
+            }
+        }
+        else if (state == ParsingState::eComponentName)
+        {
+            if (token == '}')
+            {
+                entity->ResolveComponentDependencies();
+                state = ParsingState::eEntity;
+            }
+            else if (token == '\0')
+            {
+                auto componentCreator = mRegisteredComponents.find(componentName);
+                if (componentCreator == mRegisteredComponents.end())
+                {
+                    throw std::logic_error(componentName + std::string { " is not registered" });
+                }
+                auto component = componentCreator->second();
+                auto componentPtr = component.get();
+                mEntityComponents[entity->mPointer.mIndex].emplace_back(std::move(component));
+                componentPtr->Deserialize(is);
+                EntityConstructComponent(componentPtr, entity->mPointer);
+                componentName.clear();
+                state = ParsingState::eComponentName;
+            }
+            else
+            {
+                componentName += token;
+            }
+        }
+    }
 }
 
 bool EntityManager::EntityPointerValid(const Entity::Pointer& entityPointer) const
@@ -71,7 +144,7 @@ void EntityManager::EntityConstructComponent(Component* component, const Entity:
 void EntityManager::EntityResolveComponentDependencies(const Entity::Pointer& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
-    auto& components = mEntityComponents[entityPointer.mIndex].mComponents;
+    auto& components = mEntityComponents[entityPointer.mIndex];
     for (auto& component : components)
     {
         component->OnResolveDependencies();
@@ -111,9 +184,4 @@ EntityManager::ConstIterator EntityManager::begin() const
 EntityManager::ConstIterator EntityManager::end() const
 {
     return { *this, static_cast<Entity::PointerSize>(mEntityComponents.size()) };
-}
-
-bool EntityManager::EntityComponentContainer::operator==(const EntityManager::EntityComponentContainer& other)
-{
-    return mCreated == other.mCreated && mComponents == other.mComponents;
 }

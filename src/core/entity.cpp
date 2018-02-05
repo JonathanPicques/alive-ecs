@@ -1,7 +1,7 @@
 #include "core/entity.hpp"
 #include "core/entitymanager.hpp"
 
-Entity::Pointer::Pointer(std::uint16_t index, std::uint16_t version) : mIndex(index), mVersion(version)
+Entity::Pointer::Pointer(Entity::PointerSize index, Entity::PointerSize version) : mIndex(index), mVersion(version)
 {
 
 }
