@@ -1,3 +1,4 @@
+#include <cassert>
 #include <ostream>
 #include <istream>
 #include <cstring>
@@ -5,113 +6,84 @@
 
 #include "core/entitymanager.hpp"
 
-Entity* EntityManager::CreateEntity()
+Entity EntityManager::CreateEntity()
 {
-    auto entity = std::make_unique<Entity>(this);
-    auto entityPtr = entity.get();
-    mEntities.emplace_back(std::move(entity));
-    return entityPtr;
-}
-
-void EntityManager::DestroyEntity(Entity* entity)
-{
-    entity->mDestroyed = true;
-}
-
-void EntityManager::DestroyEntities()
-{
-    mEntities.erase(std::remove_if(mEntities.begin(), mEntities.end(), [](auto const& e)
+    std::uint16_t index;
+    std::uint16_t version;
+    if (mFreeIndexes.empty())
     {
-        return e.get()->mDestroyed;
-    }), mEntities.end());
+        index = mIndex++;
+        version = 0;
+        mVersions.resize(index + 1);
+        mEntityComponents.resize(index + 1);
+        mEntityComponents[index].mCreated = true;
+    }
+    else
+    {
+        index = mFreeIndexes.back();
+        version = mVersions[index];
+        mFreeIndexes.pop_back();
+    }
+    return Entity(this, Entity::Pointer(index, version));
 }
 
-void EntityManager::ConstructSystem(System& system)
+void EntityManager::DestroyEntity(Entity::Pointer& entityPointer)
 {
-    system.mManager = this;
-    system.OnLoad();
+    AssertEntityPointerValid(entityPointer);
+    mVersions[entityPointer.mIndex] += 1;
+    mEntityComponents[entityPointer.mIndex].mCreated = false;
+    mEntityComponents[entityPointer.mIndex].mComponents.clear();
+    mFreeIndexes.push_back(entityPointer.mIndex);
 }
 
+void EntityManager::Serialize(std::ostream& os) const
+{
+    throw std::logic_error("not yet implemented");
+}
+
+void EntityManager::Deserialize(std::istream& is)
+{
+    throw std::logic_error("not yet implemented");
+}
+
+bool EntityManager::EntityPointerValid(const Entity::Pointer& entityPointer) const
+{
+    return entityPointer.mIndex < mVersions.size() && mVersions[entityPointer.mIndex] == entityPointer.mVersion;
+}
+
+void EntityManager::AssertEntityPointerValid(const Entity::Pointer& entityPointer) const
+{
+    assert(EntityPointerValid(entityPointer));
+}
+
+void EntityManager::EntityConstructComponent(Component* component, const Entity::Pointer& entityPointer)
+{
+    AssertEntityPointerValid(entityPointer);
+    component->mEntity = std::make_unique<Entity>(this, entityPointer); // TODO: move from pointer to value
+    component->OnLoad();
+}
+
+void EntityManager::EntityResolveComponentDependencies(const Entity::Pointer& entityPointer)
+{
+    AssertEntityPointerValid(entityPointer);
+    auto& components = mEntityComponents[entityPointer.mIndex].mComponents;
+    for (auto& component : components)
+    {
+        component->OnResolveDependencies();
+    }
+}
+
+#if defined(_DEBUG)
 bool EntityManager::IsComponentRegistered(const std::string& componentName) const
 {
     return mRegisteredComponents.find(componentName) != mRegisteredComponents.end();
 }
 
-void EntityManager::Update()
+void EntityManager::AssertComponentRegistered(const std::string& componentName) const
 {
-    for (auto& system : mSystems)
+    if (!IsComponentRegistered(componentName))
     {
-        system->Update();
-    }
-    DestroyEntities();
-}
-
-void EntityManager::Serialize(std::ostream& os) const
-{
-    for (auto const& entity : mEntities)
-    {
-        os.write("{", 1);
-        for (auto const& component : entity->mComponents)
-        {
-            os.write(component->GetComponentName().c_str(), 1 + component->GetComponentName().size());
-            component->Serialize(os);
-        }
-        os.write("}", 1);
+        throw std::logic_error(std::string{ "EntityManager::AssertComponentRegistered: Component " } + componentName + std::string{ " not registered" });
     }
 }
-
-void EntityManager::Deserialize(std::istream& is)
-{
-    mEntities.clear();
-    enum class mode_e
-    {
-        entity_create, component_name
-    };
-    auto mode = mode_e::entity_create;
-    Entity* entity = nullptr;
-    std::string componentName;
-    while (!is.eof())
-    {
-        char token;
-        is >> token;
-        if (mode == mode_e::entity_create)
-        {
-            if (token == '0')
-            {
-                break;
-            }
-            else if (token == '{')
-            {
-                entity = CreateEntity();
-                mode = mode_e::component_name;
-            }
-        }
-        else if (mode == mode_e::component_name)
-        {
-            if (token == '}')
-            {
-                entity->ResolveComponentDependencies();
-                mode = mode_e::entity_create;
-            }
-            else if (token == '\0')
-            {
-                auto componentCreator = mRegisteredComponents.find(componentName);
-                if (componentCreator == mRegisteredComponents.end())
-                {
-                    throw std::logic_error(componentName + std::string { " is not registered" });
-                }
-                auto component = componentCreator->second();
-                auto componentPtr = component.get();
-                entity->mComponents.emplace_back(std::move(component));
-                componentPtr->Deserialize(is);
-                entity->ConstructComponent(*componentPtr);
-                componentName.clear();
-                mode = mode_e::component_name;
-            }
-            else
-            {
-                componentName += token;
-            }
-        }
-    }
-}
+#endif

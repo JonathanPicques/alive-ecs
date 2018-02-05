@@ -54,9 +54,9 @@ TEST(Lifecycle, Dependency_Manual_Lifecycle)
     manager.RegisterComponent<LegMuscleComponent>();
 
     auto entity = manager.CreateEntity();
-    auto leg = entity->AddComponent<LegMuscleComponent>(); // depends on heart and body
-    auto heart = entity->AddComponent<HeartComponent>(); // depends on body
-    auto body = entity->AddComponent<BodyComponent>(); // depends on heart
+    auto leg = entity.AddComponent<LegMuscleComponent>(); // depends on heart and body
+    auto heart = entity.AddComponent<HeartComponent>(); // depends on body
+    auto body = entity.AddComponent<BodyComponent>(); // depends on heart
 
     // in this order, leg has nothing resolved, heart has nothing resolved and body has heart resolved
     EXPECT_EQ(nullptr, leg->mBodyComponent);
@@ -64,7 +64,7 @@ TEST(Lifecycle, Dependency_Manual_Lifecycle)
     EXPECT_EQ(nullptr, heart->mBodyComponent);
     EXPECT_EQ(heart, body->mHeartComponent);
 
-    entity->ResolveComponentDependencies();
+    entity.ResolveComponentDependencies();
 
     // all should be resolved
     EXPECT_EQ(body, leg->mBodyComponent);
@@ -82,9 +82,9 @@ TEST(Lifecycle, Dependency_Automatic_Lifecycle)
 
     auto entity = manager.CreateEntityWith<HeartComponent, BodyComponent, LegMuscleComponent>();
 
-    auto leg = entity->GetComponent<LegMuscleComponent>(); // depends on heart and body
-    auto heart = entity->GetComponent<HeartComponent>(); // depends on body
-    auto body = entity->GetComponent<BodyComponent>(); // depends on heart
+    auto leg = entity.GetComponent<LegMuscleComponent>(); // depends on heart and body
+    auto heart = entity.GetComponent<HeartComponent>(); // depends on body
+    auto body = entity.GetComponent<BodyComponent>(); // depends on heart
 
     EXPECT_EQ(body, leg->mBodyComponent);
     EXPECT_EQ(heart, leg->mHeartComponent);
@@ -101,9 +101,9 @@ TEST(Lifecycle, Dependency_Mixed_Manual_Automatic_Lifecycle)
 
     auto entity = manager.CreateEntityWith<HeartComponent, LegMuscleComponent>();
 
-    auto body = entity->AddComponent<BodyComponent>(); // depends on heart
-    auto leg = entity->GetComponent<LegMuscleComponent>(); // depends on heart and body
-    auto heart = entity->GetComponent<HeartComponent>(); // depends on body
+    auto body = entity.AddComponent<BodyComponent>(); // depends on heart
+    auto leg = entity.GetComponent<LegMuscleComponent>(); // depends on heart and body
+    auto heart = entity.GetComponent<HeartComponent>(); // depends on body
 
     // body was left out of the resolve
     // heart's reference to body is missing
@@ -116,7 +116,7 @@ TEST(Lifecycle, Dependency_Mixed_Manual_Automatic_Lifecycle)
     EXPECT_EQ(nullptr, heart->mBodyComponent);
     EXPECT_EQ(heart, body->mHeartComponent);
 
-    entity->ResolveComponentDependencies();
+    entity.ResolveComponentDependencies();
 
     EXPECT_EQ(body, leg->mBodyComponent);
     EXPECT_EQ(heart, leg->mHeartComponent);

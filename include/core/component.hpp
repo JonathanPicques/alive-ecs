@@ -1,7 +1,10 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <iosfwd>
+
+#include "entity.hpp"
 
 #define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual std::string GetComponentName() const override
 #define DEFINE_COMPONENT(NAME) std::string NAME::GetComponentName() const { return NAME::ComponentName; } constexpr const char* NAME::ComponentName
@@ -33,7 +36,7 @@ protected:
     virtual void Deserialize(std::istream& is);
 
 protected:
-    Entity* mEntity = nullptr;
+    std::unique_ptr<Entity> mEntity = {};
 };
 
 #undef DECLARE_ROOT_COMPONENT
