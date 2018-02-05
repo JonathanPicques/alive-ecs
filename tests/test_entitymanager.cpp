@@ -71,10 +71,10 @@ TEST(EntityManager, EntityManager_Save_And_Load)
 {
     auto manager = CreateEntityManager();
 
-    auto entity = manager->CreateEntity();
-    entity.AddComponent<DummyComponent>();
-    entity.AddComponent<PhysicsComponent>();
-    auto transform = entity.AddComponent<TransformComponent>();
+    auto entity1 = manager->CreateEntity();
+    entity1.AddComponent<DummyComponent>();
+    entity1.AddComponent<PhysicsComponent>();
+    auto transform = entity1.AddComponent<TransformComponent>();
     transform->mData.x = 32.0f;
     transform->mData.y = 64.0f;
 
@@ -129,21 +129,25 @@ TEST(EntityManager, EntityManager_Save_And_Load)
         auto entities_with_transform = manager->With<TransformComponent>();
         ASSERT_EQ(entities_with_transform.size(), 4);
 
+        ASSERT_EQ(entities_with_transform[0].GetPointer(), entity1.GetPointer());
         auto transform1 = entities_with_transform[0].GetComponent<TransformComponent>();
         ASSERT_NE(transform1, nullptr);
         EXPECT_EQ(transform1->GetX(), 32.0f);
         EXPECT_EQ(transform1->GetY(), 64.0f);
 
+        ASSERT_EQ(entities_with_transform[1].GetPointer(), entity2.GetPointer());
         auto transform2 = entities_with_transform[1].GetComponent<TransformComponent>();
         ASSERT_NE(transform2, nullptr);
         EXPECT_EQ(transform2->GetX(), 128.0f);
         EXPECT_EQ(transform2->GetY(), 128.0f);
 
+        ASSERT_EQ(entities_with_transform[2].GetPointer(), entity3.GetPointer());
         auto transform3 = entities_with_transform[2].GetComponent<TransformComponent>();
         ASSERT_NE(transform3, nullptr);
         EXPECT_EQ(transform3->GetX(), 52.0f);
         EXPECT_EQ(transform3->GetY(), 89.0f);
 
+        ASSERT_EQ(entities_with_transform[3].GetPointer(), entity4.GetPointer());
         auto transform4 = entities_with_transform[3].GetComponent<TransformComponent>();
         ASSERT_NE(transform4, nullptr);
         EXPECT_EQ(transform4->GetX(), 1.0f);

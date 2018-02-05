@@ -82,6 +82,9 @@ public:
     void Destroy();
     bool IsDestroyed() const;
 
+public:
+    const Pointer& GetPointer() const;
+
 private:
     EntityManager* mManager = nullptr;
     Pointer mPointer;

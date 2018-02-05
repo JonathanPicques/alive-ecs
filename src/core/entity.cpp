@@ -40,3 +40,8 @@ void Entity::ResolveComponentDependencies()
 {
     mManager->EntityResolveComponentDependencies(mPointer);
 }
+
+const Entity::Pointer& Entity::GetPointer() const
+{
+    return mPointer;
+}

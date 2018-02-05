@@ -36,6 +36,8 @@ TEST(Components, AddComponent)
     auto component = entity.AddComponent<TransformComponent>();
     EXPECT_EQ(component->GetX(), 0.0f);
     EXPECT_EQ(component->GetY(), 0.0f);
+    entity.Destroy();
+    EXPECT_ANY_THROW(entity.GetComponent<TransformComponent>());
 }
 
 TEST(Components, GetComponent)
@@ -117,7 +119,7 @@ TEST(Components, Has_Component)
     EXPECT_FALSE((entity.HasAnyComponent<DummyComponent, TransformComponent>()));
 }
 
-TEST(Entity, Entity_Create_With)
+TEST(Entity, CreateWith)
 {
     auto manager = CreateEntityManager();
     auto entity = manager->CreateEntityWith<DummyComponent, TransformComponent>();
@@ -127,4 +129,11 @@ TEST(Entity, Entity_Create_With)
 
     ASSERT_NE(component1, nullptr);
     ASSERT_NE(component2, nullptr);
+
+    entity.Destroy();
+    entity = manager->CreateEntity();
+    component1 = entity.GetComponent<DummyComponent>();
+    component2 = entity.GetComponent<TransformComponent>();
+    EXPECT_EQ(nullptr, component1);
+    EXPECT_EQ(nullptr, component2);
 }
