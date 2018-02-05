@@ -123,19 +123,19 @@ private:
         friend EntityManager;
 
     public:
-        using ContextType = typename std::conditional<is_const, const EntityManager, EntityManager>::type;
-        using ReferenceType = typename std::conditional<is_const, const Entity, Entity>::type;
+        using EntityType = typename std::conditional<is_const, const Entity, Entity>::type;
+        using ManagerType = typename std::conditional<is_const, const EntityManager, EntityManager>::type;
 
     public:
-        EntityComponentContainerIterator(ContextType& context, Entity::PointerSize position);
+        EntityComponentContainerIterator(ManagerType& manager, Entity::PointerSize position);
 
     public:
-        ReferenceType operator*();
+        EntityType operator*();
         bool operator!=(const EntityComponentContainerIterator& other);
         EntityComponentContainerIterator operator++();
 
     private:
-        ContextType& mContext;
+        ManagerType& mManager;
         Entity::Pointer mPointer;
     };
 
@@ -479,15 +479,15 @@ std::vector<Entity> EntityManager::With()
 }
 
 template<bool is_const>
-EntityManager::EntityComponentContainerIterator<is_const>::EntityComponentContainerIterator(EntityComponentContainerIterator<is_const>::ContextType& context, Entity::PointerSize position) : mContext(context), mPointer(position, 0)
+EntityManager::EntityComponentContainerIterator<is_const>::EntityComponentContainerIterator(EntityComponentContainerIterator<is_const>::ManagerType& manager, Entity::PointerSize position) : mManager(manager), mPointer(position, 0)
 {
 
 }
 
 template<bool is_const>
-typename EntityManager::EntityComponentContainerIterator<is_const>::ReferenceType EntityManager::EntityComponentContainerIterator<is_const>::operator*()
+typename EntityManager::EntityComponentContainerIterator<is_const>::EntityType EntityManager::EntityComponentContainerIterator<is_const>::operator*()
 {
-    return ReferenceType(&mContext, mPointer);
+    return EntityType(&mManager, mPointer);
 }
 
 template<bool is_const>
@@ -500,11 +500,11 @@ template<bool is_const>
 EntityManager::EntityComponentContainerIterator<is_const> EntityManager::EntityComponentContainerIterator<is_const>::operator++()
 {
     mPointer.mIndex += 1;
-    while (mPointer.mIndex < mContext.mEntityComponents.size())
+    while (mPointer.mIndex < mManager.mEntityComponents.size())
     {
-        if (mContext.mEntityComponents.at(mPointer.mIndex).mCreated)
+        if (mManager.mEntityComponents.at(mPointer.mIndex).mCreated)
         {
-            mPointer.mVersion = mContext.mVersions[mPointer.mIndex];
+            mPointer.mVersion = mManager.mVersions[mPointer.mIndex];
             break;
         }
         mPointer.mIndex += 1;
