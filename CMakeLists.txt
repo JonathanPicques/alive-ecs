@@ -18,6 +18,9 @@ target_include_directories(alive_ecs
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         PRIVATE src)
+target_compile_options(alive_ecs PRIVATE "-Wall")
+target_compile_options(alive_ecs PRIVATE "-ansi")
+target_compile_options(alive_ecs PRIVATE "-pedantic")
 target_compile_definitions(alive_ecs PUBLIC _DEBUG=1)
 
 # ECS tests

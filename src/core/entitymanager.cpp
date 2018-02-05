@@ -92,3 +92,23 @@ void EntityManager::AssertComponentRegistered(const std::string& componentName) 
     }
 }
 #endif
+
+EntityManager::Iterator EntityManager::begin()
+{
+    return { *this, 0 };
+}
+
+EntityManager::Iterator EntityManager::end()
+{
+    return { *this, static_cast<Entity::PointerSize>(mEntityComponents.size()) };
+}
+
+EntityManager::ConstIterator EntityManager::begin() const
+{
+    return { *this, 0 };
+}
+
+EntityManager::ConstIterator EntityManager::end() const
+{
+    return { *this, static_cast<Entity::PointerSize>(mEntityComponents.size()) };
+}

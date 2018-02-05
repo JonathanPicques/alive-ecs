@@ -10,7 +10,6 @@
 #include <functional>
 #include <type_traits>
 #include <unordered_map>
-#include <bits/unordered_map.h>
 
 #include "system.hpp"
 #include "entity.hpp"
@@ -103,11 +102,52 @@ private:
     bool EntityWith(const Entity::Pointer& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
 
 private:
-    struct EntityComponentContainer final
+    class EntityComponentContainer final
     {
+    public:
+        bool operator==(const EntityComponentContainer& other)
+        {
+            return mCreated == other.mCreated && mComponents == other.mComponents;
+        }
+
+    public:
         bool mCreated = false;
         std::vector<std::unique_ptr<Component>> mComponents = {};
     };
+
+private:
+    template<bool is_const>
+    class EntityComponentContainerIterator final
+    {
+    public:
+        friend EntityManager;
+
+    public:
+        using ContextType = typename std::conditional<is_const, const EntityManager, EntityManager>::type;
+        using ReferenceType = typename std::conditional<is_const, const Entity, Entity>::type;
+
+    public:
+        EntityComponentContainerIterator(ContextType& context, Entity::PointerSize position);
+
+    public:
+        ReferenceType operator*();
+        bool operator!=(const EntityComponentContainerIterator& other);
+        EntityComponentContainerIterator operator++();
+
+    private:
+        ContextType& mContext;
+        Entity::Pointer mPointer;
+    };
+
+private:
+    using Iterator = EntityComponentContainerIterator<false>;
+    using ConstIterator = EntityComponentContainerIterator<true>;
+
+private:
+    Iterator begin();
+    Iterator end();
+    ConstIterator begin() const;
+    ConstIterator end() const;
 
 private:
     Entity::PointerSize mIndex = {};
@@ -389,9 +429,8 @@ bool EntityManager::EntityWith(const Entity::Pointer& entityPointer, typename st
 template<typename... C>
 void EntityManager::Any(typename std::common_type<std::function<void(Entity entity, C* ...)>>::type view)
 {
-    for (Entity::PointerSize i = 0; i < mEntityComponents.size(); ++i)
+    for (auto entity : *this)
     {
-        auto entity = Entity(this, Entity::Pointer(i, mVersions[i]));
         if (entity.HasAnyComponent<C...>())
         {
             view(entity, entity.GetComponent<C>()...);
@@ -403,9 +442,8 @@ template<typename... C>
 std::vector<Entity> EntityManager::Any()
 {
     std::vector<Entity> entities;
-    for (Entity::PointerSize i = 0; i < mEntityComponents.size(); ++i)
+    for (auto entity : *this)
     {
-        auto entity = Entity(this, Entity::Pointer(i, mVersions[i]));
         if (entity.HasAnyComponent<C...>())
         {
             entities.emplace_back(entity);
@@ -417,15 +455,11 @@ std::vector<Entity> EntityManager::Any()
 template<typename... C>
 void EntityManager::With(typename std::common_type<std::function<void(Entity entity, C* ...)>>::type view)
 {
-    for (Entity::PointerSize i = 0; i < mEntityComponents.size(); ++i)
+    for (auto entity : *this)
     {
-        if (mEntityComponents[i].mCreated)
+        if (entity.HasComponent<C...>())
         {
-            auto entity = Entity(this, Entity::Pointer(i, mVersions[i]));
-            if (entity.HasComponent<C...>())
-            {
-                view(entity, entity.GetComponent<C>()...);
-            }
+            view(entity, entity.GetComponent<C>()...);
         }
     }
 }
@@ -434,16 +468,46 @@ template<typename... C>
 std::vector<Entity> EntityManager::With()
 {
     std::vector<Entity> entities;
-    for (Entity::PointerSize i = 0; i < mEntityComponents.size(); ++i)
+    for (auto entity : *this)
     {
-        if (mEntityComponents[i].mCreated)
+        if (entity.HasComponent<C...>())
         {
-            auto entity = Entity(this, Entity::Pointer(i, mVersions[i]));
-            if (entity.HasComponent<C...>())
-            {
-                entities.emplace_back(entity);
-            }
+            entities.emplace_back(entity);
         }
     }
     return entities;
+}
+
+template<bool is_const>
+EntityManager::EntityComponentContainerIterator<is_const>::EntityComponentContainerIterator(EntityComponentContainerIterator<is_const>::ContextType& context, Entity::PointerSize position) : mContext(context), mPointer(position, 0)
+{
+
+}
+
+template<bool is_const>
+typename EntityManager::EntityComponentContainerIterator<is_const>::ReferenceType EntityManager::EntityComponentContainerIterator<is_const>::operator*()
+{
+    return ReferenceType(&mContext, mPointer);
+}
+
+template<bool is_const>
+bool EntityManager::EntityComponentContainerIterator<is_const>::operator!=(const EntityManager::EntityComponentContainerIterator<is_const>& other)
+{
+    return mPointer != other.mPointer;
+}
+
+template<bool is_const>
+EntityManager::EntityComponentContainerIterator<is_const> EntityManager::EntityComponentContainerIterator<is_const>::operator++()
+{
+    mPointer.mIndex += 1;
+    while (mPointer.mIndex < mContext.mEntityComponents.size())
+    {
+        if (mContext.mEntityComponents.at(mPointer.mIndex).mCreated)
+        {
+            mPointer.mVersion = mContext.mVersions[mPointer.mIndex];
+            break;
+        }
+        mPointer.mIndex += 1;
+    }
+    return *this;
 }

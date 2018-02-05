@@ -11,6 +11,11 @@ bool operator==(const Entity::Pointer& a, const Entity::Pointer& b)
     return a.mIndex == b.mIndex && a.mVersion == b.mVersion;
 }
 
+bool operator!=(const Entity::Pointer& a, const Entity::Pointer& b)
+{
+    return a.mIndex != b.mIndex || a.mVersion != b.mVersion;
+}
+
 Entity::Entity(EntityManager* manager, Pointer pointer) : mManager(manager), mPointer(pointer)
 {
 

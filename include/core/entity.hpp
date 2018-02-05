@@ -33,6 +33,7 @@ public:
 
     public:
         friend bool operator==(const Pointer& a, const Pointer& b);
+        friend bool operator!=(const Pointer& a, const Pointer& b);
 
     private:
         PointerSize mIndex = {};

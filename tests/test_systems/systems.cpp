@@ -10,4 +10,4 @@ WorldStateSystem::WorldStateSystem(char* inputState, char* networkState) : mInpu
 void WorldStateSystem::Update()
 {
 
-};
+}
