@@ -5,6 +5,11 @@
 
 DEFINE_ROOT_COMPONENT(Component);
 
+Component::Component() : mEntity(nullptr, 0 , 0)
+{
+
+}
+
 Component::~Component() // NOLINT
 {
 

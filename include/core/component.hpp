@@ -12,7 +12,6 @@
 #define DECLARE_ROOT_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual std::string GetComponentName() const
 #define DEFINE_ROOT_COMPONENT(NAME) std::string NAME::GetComponentName() const { return NAME::ComponentName; } constexpr const char* NAME::ComponentName
 
-class Entity;
 class EntityManager;
 
 class Component
@@ -23,6 +22,9 @@ public:
 public:
     friend Entity;
     friend EntityManager;
+
+public:
+    Component();
 
 public:
     virtual ~Component() = 0;
@@ -36,7 +38,7 @@ protected:
     virtual void Deserialize(std::istream& is);
 
 protected:
-    std::unique_ptr<Entity> mEntity = {};
+   Entity mEntity;
 };
 
 #undef DECLARE_ROOT_COMPONENT

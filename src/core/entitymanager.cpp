@@ -136,7 +136,7 @@ void EntityManager::AssertEntityPointerValid(const Entity& entityPointer) const
 void EntityManager::EntityConstructComponent(Component* component, const Entity& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
-    component->mEntity = std::make_unique<Entity>(entityPointer);
+    component->mEntity = entityPointer;
     component->OnLoad();
 }
 

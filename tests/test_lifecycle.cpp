@@ -9,7 +9,7 @@ public:
 protected:
     void OnResolveDependencies() final
     {
-        mHeartComponent = mEntity->GetComponent<HeartComponent>();
+        mHeartComponent = mEntity.GetComponent<HeartComponent>();
     }
 public:
     class HeartComponent *mHeartComponent = nullptr;
@@ -23,7 +23,7 @@ public:
 protected:
     void OnResolveDependencies() final
     {
-        mBodyComponent = mEntity->GetComponent<BodyComponent>();
+        mBodyComponent = mEntity.GetComponent<BodyComponent>();
     }
 public:
     BodyComponent *mBodyComponent = nullptr;
@@ -37,8 +37,8 @@ public:
 protected:
     void OnResolveDependencies() final
     {
-        mHeartComponent = mEntity->GetComponent<HeartComponent>();
-        mBodyComponent = mEntity->GetComponent<BodyComponent>();
+        mHeartComponent = mEntity.GetComponent<HeartComponent>();
+        mBodyComponent = mEntity.GetComponent<BodyComponent>();
     }
 public:
     class HeartComponent *mHeartComponent = nullptr;

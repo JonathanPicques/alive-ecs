@@ -5,8 +5,6 @@
 #include <functional>
 #include <type_traits>
 
-#include "component.hpp"
-
 class EntityManager;
 
 class Entity final
