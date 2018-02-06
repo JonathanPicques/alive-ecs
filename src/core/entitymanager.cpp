@@ -24,10 +24,10 @@ Entity EntityManager::CreateEntity()
         version = mVersions[index];
         mFreeIndexes.pop_back();
     }
-    return Entity(this, Entity::Pointer(index, version));
+    return Entity(this, index, version);
 }
 
-void EntityManager::DestroyEntity(Entity::Pointer& entityPointer)
+void EntityManager::DestroyEntity(Entity& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
     mVersions[entityPointer.mIndex] += 1;
@@ -37,12 +37,12 @@ void EntityManager::DestroyEntity(Entity::Pointer& entityPointer)
 
 void EntityManager::Serialize(std::ostream& os) const
 {
-    for (auto entity : *this)
+    for (auto entityPointer : *this)
     {
         os << '{';
-        os.write(reinterpret_cast<char*>(&entity.mPointer.mIndex), sizeof(entity.mPointer.mIndex));
-        os.write(reinterpret_cast<char*>(&entity.mPointer.mVersion), sizeof(entity.mPointer.mVersion));
-        for (const auto& component : mEntityComponents[entity.mPointer.mIndex])
+        os.write(reinterpret_cast<char*>(&entityPointer.mIndex), sizeof(entityPointer.mIndex));
+        os.write(reinterpret_cast<char*>(&entityPointer.mVersion), sizeof(entityPointer.mVersion));
+        for (const auto& component : mEntityComponents[entityPointer.mIndex])
         {
             os.write(component->GetComponentName().c_str(), 1 + component->GetComponentName().size());
             component->Serialize(os);
@@ -60,7 +60,7 @@ void EntityManager::Deserialize(std::istream& is)
         eComponentName,
     };
     auto state = ParsingState::eEntity;
-    std::unique_ptr<Entity> entity;
+    std::unique_ptr<Entity> entityPointer;
     std::string componentName;
     while (!is.eof())
     {
@@ -74,17 +74,17 @@ void EntityManager::Deserialize(std::istream& is)
             }
             else if (token == '{')
             {
-                entity = std::make_unique<Entity>(this, Entity::Pointer(0, 0));
-                is.read(reinterpret_cast<char*>(&entity->mPointer.mIndex), sizeof(entity->mPointer.mIndex));
-                is.read(reinterpret_cast<char*>(&entity->mPointer.mVersion), sizeof(entity->mPointer.mVersion));
-                for (auto i = mNextIndex; i < entity->mPointer.mIndex; i++)
+                entityPointer = std::make_unique<Entity>(this, 0, 0);
+                is.read(reinterpret_cast<char*>(&entityPointer->mIndex), sizeof(entityPointer->mIndex));
+                is.read(reinterpret_cast<char*>(&entityPointer->mVersion), sizeof(entityPointer->mVersion));
+                for (auto i = mNextIndex; i < entityPointer->mIndex; i++)
                 {
                     mFreeIndexes.emplace_back(i);
                 }
-                mNextIndex = static_cast<Entity::PointerSize>(entity->mPointer.mIndex + 1);
+                mNextIndex = static_cast<Entity::PointerSize>(entityPointer->mIndex + 1);
                 mVersions.resize(mNextIndex);
                 mEntityComponents.resize(mNextIndex);
-                mVersions[entity->mPointer.mIndex] = entity->mPointer.mVersion;
+                mVersions[entityPointer->mIndex] = entityPointer->mVersion;
                 state = ParsingState::eComponentName;
             }
         }
@@ -92,7 +92,7 @@ void EntityManager::Deserialize(std::istream& is)
         {
             if (token == '}')
             {
-                entity->ResolveComponentDependencies();
+                entityPointer->ResolveComponentDependencies();
                 state = ParsingState::eEntity;
             }
             else if (token == '\0')
@@ -104,9 +104,9 @@ void EntityManager::Deserialize(std::istream& is)
                 }
                 auto component = componentCreator->second();
                 auto componentPtr = component.get();
-                mEntityComponents[entity->mPointer.mIndex].emplace_back(std::move(component));
+                mEntityComponents[entityPointer->mIndex].emplace_back(std::move(component));
                 componentPtr->Deserialize(is);
-                EntityConstructComponent(componentPtr, entity->mPointer);
+                EntityConstructComponent(componentPtr, *(entityPointer.get()));
                 componentName.clear();
                 state = ParsingState::eComponentName;
             }
@@ -118,29 +118,29 @@ void EntityManager::Deserialize(std::istream& is)
     }
 }
 
-bool EntityManager::EntityPointerValid(const Entity::Pointer& entityPointer) const
+bool EntityManager::EntityPointerValid(const Entity& entityPointer) const
 {
     return entityPointer.mIndex < mVersions.size() && mVersions[entityPointer.mIndex] == entityPointer.mVersion;
 }
 
-void EntityManager::AssertEntityPointerValid(const Entity::Pointer& entityPointer) const
+void EntityManager::AssertEntityPointerValid(const Entity& entityPointer) const
 {
     if (!EntityPointerValid(entityPointer))
     {
         std::stringstream errorFormat;
-        errorFormat << "Entity::Pointer invalid: " << entityPointer.mIndex << "(" << entityPointer.mIndex << ")";
+        errorFormat << "Entity invalid: " << entityPointer.mIndex << "(" << entityPointer.mIndex << ")";
         throw std::logic_error(errorFormat.str());
     }
 }
 
-void EntityManager::EntityConstructComponent(Component* component, const Entity::Pointer& entityPointer)
+void EntityManager::EntityConstructComponent(Component* component, const Entity& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
-    component->mEntity = std::make_unique<Entity>(this, entityPointer); // TODO: move from pointer to value
+    component->mEntity = std::make_unique<Entity>(entityPointer);
     component->OnLoad();
 }
 
-void EntityManager::EntityResolveComponentDependencies(const Entity::Pointer& entityPointer)
+void EntityManager::EntityResolveComponentDependencies(const Entity& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
     auto& components = mEntityComponents[entityPointer.mIndex];

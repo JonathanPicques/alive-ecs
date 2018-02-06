@@ -154,25 +154,25 @@ TEST(EntityManager, SaveAndLoad)
         auto entities_with_transform = manager->With<TransformComponent>();
         ASSERT_EQ(entities_with_transform.size(), 4);
 
-        ASSERT_EQ(entities_with_transform[0].GetPointer(), entity1.GetPointer());
+        ASSERT_EQ(entities_with_transform[0], entity1);
         auto transform1 = entities_with_transform[0].GetComponent<TransformComponent>();
         ASSERT_NE(transform1, nullptr);
         EXPECT_EQ(transform1->GetX(), 32.0f);
         EXPECT_EQ(transform1->GetY(), 64.0f);
 
-        ASSERT_EQ(entities_with_transform[1].GetPointer(), entity2.GetPointer());
+        ASSERT_EQ(entities_with_transform[1], entity2);
         auto transform2 = entities_with_transform[1].GetComponent<TransformComponent>();
         ASSERT_NE(transform2, nullptr);
         EXPECT_EQ(transform2->GetX(), 128.0f);
         EXPECT_EQ(transform2->GetY(), 128.0f);
 
-        ASSERT_EQ(entities_with_transform[2].GetPointer(), entity3.GetPointer());
+        ASSERT_EQ(entities_with_transform[2], entity3);
         auto transform3 = entities_with_transform[2].GetComponent<TransformComponent>();
         ASSERT_NE(transform3, nullptr);
         EXPECT_EQ(transform3->GetX(), 52.0f);
         EXPECT_EQ(transform3->GetY(), 89.0f);
 
-        ASSERT_EQ(entities_with_transform[3].GetPointer(), entity4.GetPointer());
+        ASSERT_EQ(entities_with_transform[3], entity4);
         auto transform4 = entities_with_transform[3].GetComponent<TransformComponent>();
         ASSERT_NE(transform4, nullptr);
         EXPECT_EQ(transform4->GetX(), 1.0f);
@@ -221,11 +221,11 @@ TEST(EntityManager, SparseSaveAndLoad)
             entities.emplace_back(entity);
         }
         ASSERT_EQ(5, entities.size());
-        EXPECT_EQ(entity0.GetPointer(), entities[0].GetPointer());
-        EXPECT_EQ(entity3.GetPointer(), entities[1].GetPointer());
-        EXPECT_EQ(entity5.GetPointer(), entities[2].GetPointer());
-        EXPECT_EQ(entity7.GetPointer(), entities[3].GetPointer());
-        EXPECT_EQ(entity9.GetPointer(), entities[4].GetPointer());
+        EXPECT_EQ(entity0, entities[0]);
+        EXPECT_EQ(entity3, entities[1]);
+        EXPECT_EQ(entity5, entities[2]);
+        EXPECT_EQ(entity7, entities[3]);
+        EXPECT_EQ(entity9, entities[4]);
 
     }
 }
@@ -272,7 +272,7 @@ TEST(EntityManager, ExtremeSparseSaveAndLoad)
         ASSERT_EQ(500, entities2.size());
         for (auto i = 0; i < 500; i++)
         {
-            ASSERT_EQ(entities[i * 2 + 1].GetPointer(), entities2[i].GetPointer());
+            ASSERT_EQ(entities[i * 2 + 1], entities2[i]);
         }
     }
 }

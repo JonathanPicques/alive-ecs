@@ -26,12 +26,12 @@ public:
 
 private:
     template<typename C>
-    void CreateEntityWith(Entity& entity);
+    void CreateEntityWith(Entity& entityPointer);
     template<typename C1, typename C2, typename ...C>
-    void CreateEntityWith(Entity& entity);
+    void CreateEntityWith(Entity& entityPointer);
 
 private:
-    void DestroyEntity(Entity::Pointer& entityPointer);
+    void DestroyEntity(Entity& entityPointer);
 
 public:
     template<typename S, typename ...Args>
@@ -55,11 +55,11 @@ public:
 
 public:
     template<typename ...C>
-    void Any(typename std::common_type<std::function<void(Entity entity, C* ...)>>::type view);
+    void Any(typename std::common_type<std::function<void(Entity, C* ...)>>::type view);
     template<typename ...C>
     std::vector<Entity> Any();
     template<typename ...C>
-    void With(typename std::common_type<std::function<void(Entity entity, C* ...)>>::type view);
+    void With(typename std::common_type<std::function<void(Entity, C* ...)>>::type view);
     template<typename ...C>
     std::vector<Entity> With();
 
@@ -68,8 +68,8 @@ public:
     void Deserialize(std::istream& is);
 
 private:
-    bool EntityPointerValid(const Entity::Pointer& entityPointer) const;
-    void AssertEntityPointerValid(const Entity::Pointer& entityPointer) const;
+    bool EntityPointerValid(const Entity& entityPointer) const;
+    void AssertEntityPointerValid(const Entity& entityPointer) const;
 
 public:
     template<bool is_const>
@@ -83,7 +83,7 @@ public:
         using ManagerType = std::conditional_t<is_const, const EntityManager, EntityManager>;
 
     public:
-        EntityComponentContainerIterator(ManagerType& manager, Entity::PointerSize position) : mManager(manager), mPointer(position, 0)
+        EntityComponentContainerIterator(ManagerType& manager, Entity::PointerSize position) : mManager(manager), mIndex(position), mVersion(0)
         {
             IterateToNextValidEntity();
         }
@@ -91,16 +91,16 @@ public:
     public:
         EntityType operator*()
         {
-            return EntityType(const_cast<EntityManager*>(&mManager), mPointer);
+            return EntityType(const_cast<EntityManager*>(&mManager), mIndex, mVersion);
         }
         bool operator!=(const EntityComponentContainerIterator& other)
         {
-            return mPointer.mIndex != other.mPointer.mIndex;
+            return mIndex != other.mIndex;
         }
         const EntityComponentContainerIterator& operator++()
         {
             {
-                mPointer.mIndex += 1;
+                mIndex += 1;
                 IterateToNextValidEntity();
                 return *this;
             }
@@ -109,19 +109,20 @@ public:
     private:
         void IterateToNextValidEntity()
         {
-            while (mPointer.mIndex < mManager.mNextIndex && std::find(mManager.mFreeIndexes.begin(), mManager.mFreeIndexes.end(), mPointer.mIndex) != mManager.mFreeIndexes.end())
+            while (mIndex < mManager.mNextIndex && std::find(mManager.mFreeIndexes.begin(), mManager.mFreeIndexes.end(), mIndex) != mManager.mFreeIndexes.end())
             {
-                mPointer.mIndex += 1;
+                mIndex += 1;
             }
-            if (mPointer.mIndex < mManager.mNextIndex)
+            if (mIndex < mManager.mNextIndex)
             {
-                mPointer.mVersion = mManager.mVersions[mPointer.mIndex];
+                mVersion = mManager.mVersions[mIndex];
             }
         }
 
     private:
         ManagerType& mManager;
-        Entity::Pointer mPointer;
+        Entity::PointerSize mIndex;
+        Entity::PointerSize mVersion;
     };
 
 public:
@@ -140,33 +141,33 @@ public:
 
 private:
     template<typename C>
-    C* EntityGetComponent(const Entity::Pointer& entityPointer);
+    C* EntityGetComponent(const Entity& entityPointer);
     template<typename C>
-    const C* EntityGetComponent(const Entity::Pointer& entityPointer) const;
+    const C* EntityGetComponent(const Entity& entityPointer) const;
     template<typename C>
-    C* EntityAddComponent(const Entity::Pointer& entityPointer);
+    C* EntityAddComponent(const Entity& entityPointer);
     template<typename C>
-    void EntityRemoveComponent(const Entity::Pointer& entityPointer);
+    void EntityRemoveComponent(const Entity& entityPointer);
 
 private:
-    void EntityConstructComponent(Component* component, const Entity::Pointer& entityPointer);
-    void EntityResolveComponentDependencies(const Entity::Pointer& entityPointer);
+    void EntityConstructComponent(Component* component, const Entity& entityPointer);
+    void EntityResolveComponentDependencies(const Entity& entityPointer);
 
 private:
     template<typename C>
-    bool EntityHasComponent(const Entity::Pointer& entityPointer) const;
+    bool EntityHasComponent(const Entity& entityPointer) const;
     template<typename C1, typename C2, typename ...C>
-    bool EntityHasComponent(const Entity::Pointer& entityPointer) const;
+    bool EntityHasComponent(const Entity& entityPointer) const;
     template<typename C>
-    bool EntityHasAnyComponent(const Entity::Pointer& entityPointer) const;
+    bool EntityHasAnyComponent(const Entity& entityPointer) const;
     template<typename C1, typename C2, typename ...C>
-    bool EntityHasAnyComponent(const Entity::Pointer& entityPointer) const;
+    bool EntityHasAnyComponent(const Entity& entityPointer) const;
 
 private:
     template<typename ...C>
-    bool EntityAny(const Entity::Pointer& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
+    bool EntityAny(const Entity& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
     template<typename ...C>
-    bool EntityWith(const Entity::Pointer& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
+    bool EntityWith(const Entity& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
 
 private:
     Entity::PointerSize mNextIndex = {};
@@ -182,83 +183,83 @@ private:
 template<typename C>
 C* Entity::GetComponent()
 {
-    return mManager->EntityGetComponent<C>(mPointer);
+    return mManager->EntityGetComponent<C>(*this);
 }
 
 template<typename C>
 const C* Entity::GetComponent() const
 {
-    return mManager->EntityGetComponent<C>(mPointer);
+    return mManager->EntityGetComponent<C>(*this);
 }
 
 template<typename C>
 C* Entity::AddComponent()
 {
-    return mManager->EntityAddComponent<C>(mPointer);
+    return mManager->EntityAddComponent<C>(*this);
 }
 
 template<typename C>
 void Entity::RemoveComponent()
 {
-    mManager->EntityRemoveComponent<C>(mPointer);
+    mManager->EntityRemoveComponent<C>(*this);
 }
 
 template<typename C>
 bool Entity::HasComponent() const
 {
-    return mManager->EntityHasComponent<C>(mPointer);
+    return mManager->EntityHasComponent<C>(*this);
 }
 
 template<typename C1, typename C2, typename ...C>
 bool Entity::HasComponent() const
 {
-    return mManager->EntityHasComponent<C1, C2, C...>(mPointer);
+    return mManager->EntityHasComponent<C1, C2, C...>(*this);
 }
 
 template<typename C>
 bool Entity::HasAnyComponent() const
 {
-    return mManager->EntityHasAnyComponent<C>(mPointer);
+    return mManager->EntityHasAnyComponent<C>(*this);
 }
 
 template<typename C1, typename C2, typename ...C>
 bool Entity::HasAnyComponent() const
 {
-    return mManager->EntityHasAnyComponent<C1, C2, C...>(mPointer);
+    return mManager->EntityHasAnyComponent<C1, C2, C...>(*this);
 }
 
 template<typename... C>
 bool Entity::Any(typename std::common_type<std::function<void(C* ...)>>::type view)
 {
-    return mManager->EntityAny(mPointer, view);
+    return mManager->EntityAny(*this, view);
 }
 
 template<typename... C>
 bool Entity::With(typename std::common_type<std::function<void(C* ...)>>::type view)
 {
-    return mManager->EntityWith(mPointer, view);
+    return mManager->EntityWith(*this, view);
 }
 
 template<typename... C>
 Entity EntityManager::CreateEntityWith()
 {
-    auto entity = CreateEntity();
-    CreateEntityWith<C...>(entity);
-    EntityResolveComponentDependencies(entity.mPointer);
-    return entity;
+    auto entityPointer = CreateEntity();
+    CreateEntityWith<C...>(entityPointer);
+    EntityResolveComponentDependencies(entityPointer);
+    return entityPointer;
 }
 
 template<typename C>
-void EntityManager::CreateEntityWith(Entity& entity)
+void EntityManager::CreateEntityWith(Entity& entityPointer)
 {
-    entity.AddComponent<C>();
+    entityPointer.AddComponent<C>();
 }
 
 template<typename C1, typename C2, typename ...C>
-void EntityManager::CreateEntityWith(Entity& entity)
+void EntityManager::CreateEntityWith(Entity& entityPointer)
 {
-    CreateEntityWith<C1>(entity);
-    CreateEntityWith<C2, C...>(entity);
+    CreateEntityWith<C1>(entityPointer);
+    CreateEntityWith<C2, C...>(entityPointer);
 }
 
 template<typename S, typename... Args>
@@ -328,14 +329,14 @@ void EntityManager::RegisterComponent()
 }
 
 template<typename C>
-C* EntityManager::EntityGetComponent(const Entity::Pointer& entityPointer)
+C* EntityManager::EntityGetComponent(const Entity& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
     return const_cast<C*>(static_cast<const EntityManager*>(this)->EntityGetComponent<C>(entityPointer));
 }
 
 template<typename C>
-const C* EntityManager::EntityGetComponent(const Entity::Pointer& entityPointer) const
+const C* EntityManager::EntityGetComponent(const Entity& entityPointer) const
 {
     AssertEntityPointerValid(entityPointer);
     auto& components = mEntityComponents[entityPointer.mIndex];
@@ -351,7 +352,7 @@ const C* EntityManager::EntityGetComponent(const Entity::Pointer& entityPointer)
 }
 
 template<typename C>
-C* EntityManager::EntityAddComponent(const Entity::Pointer& entityPointer)
+C* EntityManager::EntityAddComponent(const Entity& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
 #if defined(_DEBUG)
@@ -370,7 +371,7 @@ C* EntityManager::EntityAddComponent(const Entity::Pointer& entityPointer)
 }
 
 template<typename C>
-void EntityManager::EntityRemoveComponent(const Entity::Pointer& entityPointer)
+void EntityManager::EntityRemoveComponent(const Entity& entityPointer)
 {
     AssertEntityPointerValid(entityPointer);
 #if defined(_DEBUG)
@@ -392,28 +393,28 @@ void EntityManager::EntityRemoveComponent(const Entity::Pointer& entityPointer)
 }
 
 template<typename C>
-bool EntityManager::EntityHasComponent(const Entity::Pointer& entityPointer) const
+bool EntityManager::EntityHasComponent(const Entity& entityPointer) const
 {
     AssertEntityPointerValid(entityPointer);
     return EntityGetComponent<C>(entityPointer) != nullptr;
 }
 
 template<typename C1, typename C2, typename ...C>
-bool EntityManager::EntityHasComponent(const Entity::Pointer& entityPointer) const
+bool EntityManager::EntityHasComponent(const Entity& entityPointer) const
 {
     AssertEntityPointerValid(entityPointer);
     return EntityHasComponent<C1>(entityPointer) && EntityHasComponent<C2, C...>(entityPointer);
 }
 
 template<typename C>
-bool EntityManager::EntityHasAnyComponent(const Entity::Pointer& entityPointer) const
+bool EntityManager::EntityHasAnyComponent(const Entity& entityPointer) const
 {
     AssertEntityPointerValid(entityPointer);
     return EntityGetComponent<C>(entityPointer) != nullptr;
 }
 
 template<typename C1, typename C2, typename ...C>
-bool EntityManager::EntityHasAnyComponent(const Entity::Pointer& entityPointer) const
+bool EntityManager::EntityHasAnyComponent(const Entity& entityPointer) const
 {
     AssertEntityPointerValid(entityPointer);
     if (EntityHasComponent<C1>(entityPointer))
@@ -424,7 +425,7 @@ bool EntityManager::EntityHasAnyComponent(const Entity::Pointer& entityPointer) 
 }
 
 template<typename... C>
-bool EntityManager::EntityAny(const Entity::Pointer& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view)
+bool EntityManager::EntityAny(const Entity& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view)
 {
     AssertEntityPointerValid(entityPointer);
     if (EntityHasAnyComponent<C...>(entityPointer))
@@ -436,7 +437,7 @@ bool EntityManager::EntityAny(const Entity::Pointer& entityPointer, typename std
 }
 
 template<typename... C>
-bool EntityManager::EntityWith(const Entity::Pointer& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view)
+bool EntityManager::EntityWith(const Entity& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view)
 {
     AssertEntityPointerValid(entityPointer);
     if (EntityHasComponent<C...>(entityPointer))
@@ -448,13 +449,13 @@ bool EntityManager::EntityWith(const Entity::Pointer& entityPointer, typename st
 }
 
 template<typename... C>
-void EntityManager::Any(typename std::common_type<std::function<void(Entity entity, C* ...)>>::type view)
+void EntityManager::Any(typename std::common_type<std::function<void(Entity, C* ...)>>::type view)
 {
-    for (auto entity : *this)
+    for (auto entityPointer : *this)
     {
-        if (entity.HasAnyComponent<C...>())
+        if (entityPointer.HasAnyComponent<C...>())
         {
-            view(entity, entity.GetComponent<C>()...);
+            view(entityPointer, entityPointer.GetComponent<C>()...);
         }
     }
 }
@@ -462,25 +463,25 @@ void EntityManager::Any(typename std::common_type<std::function<void(Entity enti
 template<typename... C>
 std::vector<Entity> EntityManager::Any()
 {
-    std::vector<Entity> entities;
-    for (auto entity : *this)
+    std::vector<Entity> entityPointers;
+    for (auto entityPointer : *this)
     {
-        if (entity.HasAnyComponent<C...>())
+        if (entityPointer.HasAnyComponent<C...>())
         {
-            entities.emplace_back(entity);
+            entityPointers.emplace_back(entityPointer);
         }
     }
-    return entities;
+    return entityPointers;
 }
 
 template<typename... C>
-void EntityManager::With(typename std::common_type<std::function<void(Entity entity, C* ...)>>::type view)
+void EntityManager::With(typename std::common_type<std::function<void(Entity, C* ...)>>::type view)
 {
-    for (auto entity : *this)
+    for (auto entityPointer : *this)
     {
-        if (entity.HasComponent<C...>())
+        if (entityPointer.HasComponent<C...>())
         {
-            view(entity, entity.GetComponent<C>()...);
+            view(entityPointer, entityPointer.GetComponent<C>()...);
         }
     }
 }
@@ -488,13 +489,13 @@ void EntityManager::With(typename std::common_type<std::function<void(Entity ent
 template<typename... C>
 std::vector<Entity> EntityManager::With()
 {
-    std::vector<Entity> entities;
-    for (auto entity : *this)
+    std::vector<Entity> entityPointers;
+    for (auto entityPointer : *this)
     {
-        if (entity.HasComponent<C...>())
+        if (entityPointer.HasComponent<C...>())
         {
-            entities.emplace_back(entity);
+            entityPointers.emplace_back(entityPointer);
         }
     }
-    return entities;
+    return entityPointers;
 }

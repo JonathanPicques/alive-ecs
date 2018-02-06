@@ -1,52 +1,32 @@
 #include "core/entity.hpp"
 #include "core/entitymanager.hpp"
 
-Entity::Pointer::Pointer(Entity::PointerSize index, Entity::PointerSize version) : mIndex(index), mVersion(version)
-{
-
-}
-
-bool operator==(const Entity::Pointer& a, const Entity::Pointer& b)
-{
-    return a.mIndex == b.mIndex && a.mVersion == b.mVersion;
-}
-
-bool operator!=(const Entity::Pointer& a, const Entity::Pointer& b)
-{
-    return a.mIndex != b.mIndex || a.mVersion != b.mVersion;
-}
-
-Entity::Entity(EntityManager* manager, Pointer pointer) : mManager(manager), mPointer(pointer)
+Entity::Entity(EntityManager* manager, PointerSize index, PointerSize version) : mManager(manager), mIndex(index), mVersion(version)
 {
 
 }
 
 bool operator==(const Entity& a, const Entity& b)
 {
-    return a.mPointer == b.mPointer;
+    return a.mIndex == b.mIndex && a.mVersion == b.mVersion;
 }
 
 void Entity::Destroy()
 {
-    mManager->DestroyEntity(mPointer);
+    mManager->DestroyEntity(*this);
 }
 
 bool Entity::IsDestroyed() const
 {
-    return !mManager->EntityPointerValid(mPointer);
+    return !mManager->EntityPointerValid(*this);
 }
 
 void Entity::ResolveComponentDependencies()
 {
-    mManager->EntityResolveComponentDependencies(mPointer);
+    mManager->EntityResolveComponentDependencies(*this);
 }
 
 EntityManager* Entity::GetManager()
 {
     return mManager;
-}
-
-const Entity::Pointer& Entity::GetPointer() const
-{
-    return mPointer;
 }
