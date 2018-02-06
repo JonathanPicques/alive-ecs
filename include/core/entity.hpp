@@ -83,6 +83,7 @@ public:
     bool IsDestroyed() const;
 
 public:
+    EntityManager* GetManager();
     const Pointer& GetPointer() const;
 
 private:
