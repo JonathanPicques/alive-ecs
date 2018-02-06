@@ -92,7 +92,7 @@ public:
     public:
         EntityType operator*()
         {
-            return EntityType(const_cast<EntityManager*>(&mManager), mIndex, mVersion);
+            return EntityType(mIndex, mVersion, const_cast<EntityManager*>(&mManager));
         }
         bool operator!=(const EntityComponentContainerIterator& other)
         {

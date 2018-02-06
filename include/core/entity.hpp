@@ -16,12 +16,13 @@ public:
     using PointerSize = std::uint16_t;
 
 public:
-    explicit Entity(EntityManager* manager, PointerSize index, PointerSize version);
-
-public:
+    Entity() = default;
     Entity(Entity&&) = default;
     Entity(Entity const&) = default;
     Entity& operator=(Entity const&) = default;
+
+public:
+    Entity(PointerSize index, PointerSize version, EntityManager* manager);
 
 public:
     friend bool operator==(const Entity& a, const Entity& b);
@@ -61,7 +62,7 @@ public:
     EntityManager* GetManager();
 
 private:
-    EntityManager* mManager = nullptr;
     PointerSize mIndex = 0;
     PointerSize mVersion = 0;
+    EntityManager* mManager = nullptr;
 };

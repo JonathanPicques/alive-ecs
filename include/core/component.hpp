@@ -24,9 +24,6 @@ public:
     friend EntityManager;
 
 public:
-    Component();
-
-public:
     virtual ~Component() = 0;
 
 protected:
@@ -38,7 +35,7 @@ protected:
     virtual void Deserialize(std::istream& is);
 
 protected:
-   Entity mEntity;
+   Entity mEntity = {};
 };
 
 #undef DECLARE_ROOT_COMPONENT

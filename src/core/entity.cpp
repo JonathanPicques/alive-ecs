@@ -1,7 +1,7 @@
 #include "core/entity.hpp"
 #include "core/entitymanager.hpp"
 
-Entity::Entity(EntityManager* manager, PointerSize index, PointerSize version) : mManager(manager), mIndex(index), mVersion(version)
+Entity::Entity(PointerSize index, PointerSize version, EntityManager* manager) : mIndex(index), mVersion(version), mManager(manager)
 {
 
 }

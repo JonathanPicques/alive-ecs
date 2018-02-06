@@ -24,7 +24,7 @@ Entity EntityManager::CreateEntity()
         version = mVersions[index];
         mFreeIndexes.pop_back();
     }
-    return Entity(this, index, version);
+    return { index, version, this };
 }
 
 void EntityManager::DestroyEntity(Entity& entityPointer)
@@ -74,7 +74,7 @@ void EntityManager::Deserialize(std::istream& is)
             }
             else if (token == '{')
             {
-                entityPointer = std::make_unique<Entity>(this, 0, 0);
+                entityPointer = std::make_unique<Entity>(0, 0, this);
                 is.read(reinterpret_cast<char*>(&entityPointer->mIndex), sizeof(entityPointer->mIndex));
                 is.read(reinterpret_cast<char*>(&entityPointer->mVersion), sizeof(entityPointer->mVersion));
                 for (auto i = mNextIndex; i < entityPointer->mIndex; i++)
