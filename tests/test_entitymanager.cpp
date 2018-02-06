@@ -204,3 +204,44 @@ TEST(EntityManager, SparseSaveAndLoad)
 
     }
 }
+
+TEST(EntityManager, ExtremeSparseSaveAndLoad)
+{
+    auto manager = CreateEntityManager();
+    std::vector<Entity> entities;
+    for (auto i = 0; i < 1000; i++)
+    {
+        entities.emplace_back(manager->CreateEntity());
+        manager->CreateEntity().Destroy();
+    }
+    for (auto i = 0; i < 1000; i += 2)
+    {
+        entities[i].Destroy();
+    }
+
+    {
+        std::filebuf f;
+        std::ostream os(&f);
+
+        f.open("extreme_sparse_save.bin", std::ios::out | std::ios::binary);
+        manager->Serialize(os);
+    }
+
+    {
+        std::filebuf f;
+        std::istream is(&f);
+        f.open("extreme_sparse_save.bin", std::ios::in | std::ios::binary);
+        manager->Deserialize(is);
+
+        std::vector<Entity> entities2;
+        for (auto entity : *manager)
+        {
+            entities2.emplace_back(entity);
+        }
+        ASSERT_EQ(500, entities2.size());
+        for (auto i = 0; i < 500; i++)
+        {
+            ASSERT_EQ(entities[i * 2 + 1].GetPointer(), entities2[i].GetPointer());
+        }
+    }
+}
