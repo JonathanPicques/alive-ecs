@@ -83,15 +83,41 @@ public:
         using ManagerType = std::conditional_t<is_const, const EntityManager, EntityManager>;
 
     public:
-        EntityComponentContainerIterator(ManagerType& manager, Entity::PointerSize position);
+        EntityComponentContainerIterator(ManagerType& manager, Entity::PointerSize position) : mManager(manager), mPointer(position, 0)
+        {
+            IterateToNextValidEntity();
+        }
 
     public:
-        EntityType operator*();
-        bool operator!=(const EntityComponentContainerIterator& other);
-        const EntityComponentContainerIterator& operator++();
+        EntityType operator*()
+        {
+            return EntityType(const_cast<EntityManager*>(&mManager), mPointer);
+        }
+        bool operator!=(const EntityComponentContainerIterator& other)
+        {
+            return mPointer.mIndex != other.mPointer.mIndex;
+        }
+        const EntityComponentContainerIterator& operator++()
+        {
+            {
+                mPointer.mIndex += 1;
+                IterateToNextValidEntity();
+                return *this;
+            }
+        }
 
     private:
-        void IterateToNextValidEntity();
+        void IterateToNextValidEntity()
+        {
+            while (mPointer.mIndex < mManager.mNextIndex && std::find(mManager.mFreeIndexes.begin(), mManager.mFreeIndexes.end(), mPointer.mIndex) != mManager.mFreeIndexes.end())
+            {
+                mPointer.mIndex += 1;
+            }
+            if (mPointer.mIndex < mManager.mNextIndex)
+            {
+                mPointer.mVersion = mManager.mVersions[mPointer.mIndex];
+            }
+        }
 
     private:
         ManagerType& mManager;
@@ -467,43 +493,4 @@ std::vector<Entity> EntityManager::With()
         }
     }
     return entities;
-}
-
-template<bool is_const>
-EntityManager::EntityComponentContainerIterator<is_const>::EntityComponentContainerIterator(EntityComponentContainerIterator<is_const>::ManagerType& manager, Entity::PointerSize position) : mManager(manager), mPointer(position, 0)
-{
-    IterateToNextValidEntity();
-}
-
-template<bool is_const>
-typename EntityManager::EntityComponentContainerIterator<is_const>::EntityType EntityManager::EntityComponentContainerIterator<is_const>::operator*()
-{
-    return EntityType(const_cast<EntityManager*>(&mManager), mPointer);
-}
-
-template<bool is_const>
-bool EntityManager::EntityComponentContainerIterator<is_const>::operator!=(const EntityManager::EntityComponentContainerIterator<is_const>& other)
-{
-    return mPointer.mIndex != other.mPointer.mIndex;
-}
-
-template<bool is_const>
-const EntityManager::EntityComponentContainerIterator<is_const>& EntityManager::EntityComponentContainerIterator<is_const>::operator++()
-{
-    mPointer.mIndex += 1;
-    IterateToNextValidEntity();
-    return *this;
-}
-
-template<bool is_const>
-void EntityManager::EntityComponentContainerIterator<is_const>::IterateToNextValidEntity()
-{
-    while (mPointer.mIndex < mManager.mNextIndex && std::find(mManager.mFreeIndexes.begin(), mManager.mFreeIndexes.end(), mPointer.mIndex) != mManager.mFreeIndexes.end())
-    {
-        mPointer.mIndex += 1;
-    }
-    if (mPointer.mIndex < mManager.mNextIndex)
-    {
-        mPointer.mVersion = mManager.mVersions[mPointer.mIndex];
-    }
 }
