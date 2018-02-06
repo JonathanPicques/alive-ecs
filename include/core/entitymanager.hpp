@@ -139,7 +139,7 @@ private:
     bool EntityWith(const Entity::Pointer& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
 
 private:
-    Entity::PointerSize mIndex = {};
+    Entity::PointerSize mNextIndex = {};
     std::vector<Entity::PointerSize> mVersions = {};
     std::vector<Entity::PointerSize> mFreeIndexes = {};
     std::vector<std::vector<std::unique_ptr<Component>>> mEntityComponents = {};
@@ -498,11 +498,11 @@ const EntityManager::EntityComponentContainerIterator<is_const>& EntityManager::
 template<bool is_const>
 void EntityManager::EntityComponentContainerIterator<is_const>::IterateToNextValidEntity()
 {
-    while (mPointer.mIndex < mManager.mIndex && std::find(mManager.mFreeIndexes.begin(), mManager.mFreeIndexes.end(), mPointer.mIndex) != mManager.mFreeIndexes.end())
+    while (mPointer.mIndex < mManager.mNextIndex && std::find(mManager.mFreeIndexes.begin(), mManager.mFreeIndexes.end(), mPointer.mIndex) != mManager.mFreeIndexes.end())
     {
         mPointer.mIndex += 1;
     }
-    if (mPointer.mIndex < mManager.mIndex)
+    if (mPointer.mIndex < mManager.mNextIndex)
     {
         mPointer.mVersion = mManager.mVersions[mPointer.mIndex];
     }

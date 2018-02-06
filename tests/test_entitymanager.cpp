@@ -67,35 +67,35 @@ TEST(EntityManager, EntityManager_With)
 
 }
 
-TEST(EntityManager, EntityManager_Save_And_Load)
+TEST(EntityManager, SaveAndLoad)
 {
     auto manager = CreateEntityManager();
 
-    auto entity1 = manager->CreateEntity();
+    auto entity1 = manager->CreateEntity(); // 0:1
     entity1.AddComponent<DummyComponent>();
     entity1.AddComponent<PhysicsComponent>();
     auto transform = entity1.AddComponent<TransformComponent>();
     transform->mData.x = 32.0f;
     transform->mData.y = 64.0f;
 
-    auto entity2 = manager->CreateEntity();
+    auto entity2 = manager->CreateEntity(); // 1:1
     entity2.AddComponent<DummyComponent>();
     entity2.AddComponent<PhysicsComponent>();
     transform = entity2.AddComponent<TransformComponent>();
     transform->mData.x = 128.0f;
     transform->mData.y = 128.0f;
 
-    auto entity3 = manager->CreateEntity();
+    auto entity3 = manager->CreateEntity(); // 2:1
     entity3.AddComponent<PhysicsComponent>();
     transform = entity3.AddComponent<TransformComponent>();
     transform->mData.x = 52.0f;
     transform->mData.y = 89.0f;
 
-    manager->CreateEntity();
-    manager->CreateEntity().Destroy();
-    manager->CreateEntity().Destroy();
+    manager->CreateEntity(); // 3:1
+    manager->CreateEntity().Destroy(); // 4:1
+    manager->CreateEntity().Destroy(); // 4:2
 
-    auto entity4 = manager->CreateEntity();
+    auto entity4 = manager->CreateEntity(); // 4:3
     transform = entity4.AddComponent<TransformComponent>();
     transform->mData.x = 1.0f;
     transform->mData.y = 1.0f;
@@ -152,5 +152,55 @@ TEST(EntityManager, EntityManager_Save_And_Load)
         ASSERT_NE(transform4, nullptr);
         EXPECT_EQ(transform4->GetX(), 1.0f);
         EXPECT_EQ(transform4->GetY(), 1.0f);
+    }
+}
+
+TEST(EntityManager, SparseSaveAndLoad)
+{
+    auto manager = CreateEntityManager();
+    auto entity0 = manager->CreateEntity();
+    auto entity1 = manager->CreateEntity();
+    auto entity2 = manager->CreateEntity();
+    auto entity3 = manager->CreateEntity();
+    auto entity4 = manager->CreateEntity();
+    auto entity5 = manager->CreateEntity();
+    auto entity6 = manager->CreateEntity();
+    auto entity7 = manager->CreateEntity();
+    auto entity8 = manager->CreateEntity();
+
+    entity1.Destroy();
+    entity2.Destroy();
+    entity4.Destroy();
+    entity6.Destroy();
+    entity8.Destroy();
+
+    auto entity9 = manager->CreateEntity();
+
+    {
+        std::filebuf f;
+        std::ostream os(&f);
+
+        f.open("sparse_save.bin", std::ios::out | std::ios::binary);
+        manager->Serialize(os);
+    }
+
+    {
+        std::filebuf f;
+        std::istream is(&f);
+        f.open("sparse_save.bin", std::ios::in | std::ios::binary);
+        manager->Deserialize(is);
+
+        std::vector<Entity> entities;
+        for (auto entity : *manager)
+        {
+            entities.emplace_back(entity);
+        }
+        ASSERT_EQ(5, entities.size());
+        EXPECT_EQ(entity0.GetPointer(), entities[0].GetPointer());
+        EXPECT_EQ(entity3.GetPointer(), entities[1].GetPointer());
+        EXPECT_EQ(entity5.GetPointer(), entities[2].GetPointer());
+        EXPECT_EQ(entity7.GetPointer(), entities[3].GetPointer());
+        EXPECT_EQ(entity9.GetPointer(), entities[4].GetPointer());
+
     }
 }

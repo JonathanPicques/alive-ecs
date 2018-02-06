@@ -138,7 +138,7 @@ TEST(Entity, CreateWith)
     EXPECT_EQ(nullptr, component2);
 }
 
-TEST(Entity, ScarseRepartitionStart)
+TEST(Entity, SparseRepartitionStart)
 {
     auto manager = CreateEntityManager();
     auto entity1 = manager->CreateEntity();
@@ -153,7 +153,7 @@ TEST(Entity, ScarseRepartitionStart)
     EXPECT_EQ(2, entities.size());
 }
 
-TEST(Entity, ScarseRepartitionMiddle)
+TEST(Entity, SparseRepartitionMiddle)
 {
     auto manager = CreateEntityManager();
     auto entity1 = manager->CreateEntity();
@@ -169,7 +169,7 @@ TEST(Entity, ScarseRepartitionMiddle)
 }
 
 
-TEST(Entity, ScarseRepartitionEnd)
+TEST(Entity, SparseRepartitionEnd)
 {
     auto manager = CreateEntityManager();
     auto entity1 = manager->CreateEntity();
@@ -184,7 +184,7 @@ TEST(Entity, ScarseRepartitionEnd)
     EXPECT_EQ(2, entities.size());
 }
 
-TEST(Entity, ScarseRepartitionExtreme)
+TEST(Entity, SparseRepartitionExtreme)
 {
     auto manager = CreateEntityManager();
     auto entity1 = manager->CreateEntity();

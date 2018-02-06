@@ -13,10 +13,10 @@ Entity EntityManager::CreateEntity()
     Entity::PointerSize version;
     if (mFreeIndexes.empty())
     {
-        index = mIndex++;
-        version = 0;
+        index = mNextIndex++;
         mVersions.resize(index + 1);
         mEntityComponents.resize(index + 1);
+        version = mVersions[index] = 1;
     }
     else
     {
@@ -54,7 +54,7 @@ void EntityManager::Serialize(std::ostream& os) const
 void EntityManager::Deserialize(std::istream& is)
 {
 
-    mIndex = 0;
+    mNextIndex = 0;
     mVersions.clear();
     mFreeIndexes.clear();
     mEntityComponents.clear(); // TODO: clear entity manager
@@ -79,12 +79,16 @@ void EntityManager::Deserialize(std::istream& is)
             }
             else if (token == '{')
             {
-                // TODO: handle sparse entities free indexes
-                entity = std::make_unique<Entity>(CreateEntity());
+                entity = std::make_unique<Entity>(this, Entity::Pointer(0, 0));
                 is.read(reinterpret_cast<char*>(&entity->mPointer.mIndex), sizeof(entity->mPointer.mIndex));
                 is.read(reinterpret_cast<char*>(&entity->mPointer.mVersion), sizeof(entity->mPointer.mVersion));
-                mVersions.resize(entity->mPointer.mIndex + 1);
-                mEntityComponents.resize(entity->mPointer.mIndex + 1);
+                for (auto i = mNextIndex; i < entity->mPointer.mIndex; i++)
+                {
+                    mFreeIndexes.emplace_back(i);
+                }
+                mNextIndex = static_cast<Entity::PointerSize>(entity->mPointer.mIndex + 1);
+                mVersions.resize(mNextIndex);
+                mEntityComponents.resize(mNextIndex);
                 mVersions[entity->mPointer.mIndex] = entity->mPointer.mVersion;
                 state = ParsingState::eComponentName;
             }
