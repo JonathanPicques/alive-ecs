@@ -137,3 +137,70 @@ TEST(Entity, CreateWith)
     EXPECT_EQ(nullptr, component1);
     EXPECT_EQ(nullptr, component2);
 }
+
+TEST(Entity, ScarseRepartitionStart)
+{
+    auto manager = CreateEntityManager();
+    auto entity1 = manager->CreateEntity();
+    auto entity2 = manager->CreateEntity();
+    auto entity3 = manager->CreateEntity();
+    entity1.Destroy();
+    std::vector<Entity> entities;
+    for (auto entity : *manager)
+    {
+        entities.emplace_back(entity);
+    }
+    EXPECT_EQ(2, entities.size());
+}
+
+TEST(Entity, ScarseRepartitionMiddle)
+{
+    auto manager = CreateEntityManager();
+    auto entity1 = manager->CreateEntity();
+    auto entity2 = manager->CreateEntity();
+    auto entity3 = manager->CreateEntity();
+    entity2.Destroy();
+    std::vector<Entity> entities;
+    for (auto entity : *manager)
+    {
+        entities.emplace_back(entity);
+    }
+    EXPECT_EQ(2, entities.size());
+}
+
+
+TEST(Entity, ScarseRepartitionEnd)
+{
+    auto manager = CreateEntityManager();
+    auto entity1 = manager->CreateEntity();
+    auto entity2 = manager->CreateEntity();
+    auto entity3 = manager->CreateEntity();
+    entity3.Destroy();
+    std::vector<Entity> entities;
+    for (auto entity : *manager)
+    {
+        entities.emplace_back(entity);
+    }
+    EXPECT_EQ(2, entities.size());
+}
+
+TEST(Entity, ScarseRepartitionExtreme)
+{
+    auto manager = CreateEntityManager();
+    auto entity1 = manager->CreateEntity();
+    auto entity2 = manager->CreateEntity();
+    auto entity3 = manager->CreateEntity();
+    auto entity4 = manager->CreateEntity();
+    auto entity5 = manager->CreateEntity();
+    auto entity6 = manager->CreateEntity();
+    auto entity7 = manager->CreateEntity();
+    entity1.Destroy();
+    entity3.Destroy();
+    entity6.Destroy();
+    std::vector<Entity> entities;
+    for (auto entity : *manager)
+    {
+        entities.emplace_back(entity);
+    }
+    EXPECT_EQ(4, entities.size());
+}

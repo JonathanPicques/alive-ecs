@@ -71,6 +71,43 @@ private:
     bool EntityPointerValid(const Entity::Pointer& entityPointer) const;
     void AssertEntityPointerValid(const Entity::Pointer& entityPointer) const;
 
+public:
+    template<bool is_const>
+    class EntityComponentContainerIterator final
+    {
+    public:
+        friend EntityManager;
+
+    public:
+        using EntityType = std::conditional_t<is_const, const Entity, Entity>;
+        using ManagerType = std::conditional_t<is_const, const EntityManager, EntityManager>;
+
+    public:
+        EntityComponentContainerIterator(ManagerType& manager, Entity::PointerSize position);
+
+    public:
+        EntityType operator*();
+        bool operator!=(const EntityComponentContainerIterator& other);
+        const EntityComponentContainerIterator& operator++();
+
+    private:
+        void IterateToNextValidEntity();
+
+    private:
+        ManagerType& mManager;
+        Entity::Pointer mPointer;
+    };
+
+public:
+    using Iterator = EntityComponentContainerIterator<false>;
+    using ConstIterator = EntityComponentContainerIterator<true>;
+
+public:
+    Iterator begin();
+    Iterator end();
+    ConstIterator begin() const;
+    ConstIterator end() const;
+
 private:
     template<typename C>
     C* EntityGetComponent(const Entity::Pointer& entityPointer);
@@ -100,40 +137,6 @@ private:
     bool EntityAny(const Entity::Pointer& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
     template<typename ...C>
     bool EntityWith(const Entity::Pointer& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
-
-private:
-    template<bool is_const>
-    class EntityComponentContainerIterator final
-    {
-    public:
-        friend EntityManager;
-
-    public:
-        using EntityType = std::conditional_t<is_const, const Entity, Entity>;
-        using ManagerType = std::conditional_t<is_const, const EntityManager, EntityManager>;
-
-    public:
-        EntityComponentContainerIterator(ManagerType& manager, Entity::PointerSize position);
-
-    public:
-        EntityType operator*();
-        bool operator!=(const EntityComponentContainerIterator& other);
-        const EntityComponentContainerIterator& operator++();
-
-    private:
-        ManagerType& mManager;
-        Entity::Pointer mPointer;
-    };
-
-private:
-    using Iterator = EntityComponentContainerIterator<false>;
-    using ConstIterator = EntityComponentContainerIterator<true>;
-
-private:
-    Iterator begin();
-    Iterator end();
-    ConstIterator begin() const;
-    ConstIterator end() const;
 
 private:
     Entity::PointerSize mIndex = {};
@@ -469,7 +472,7 @@ std::vector<Entity> EntityManager::With()
 template<bool is_const>
 EntityManager::EntityComponentContainerIterator<is_const>::EntityComponentContainerIterator(EntityComponentContainerIterator<is_const>::ManagerType& manager, Entity::PointerSize position) : mManager(manager), mPointer(position, 0)
 {
-
+    IterateToNextValidEntity();
 }
 
 template<bool is_const>
@@ -488,22 +491,19 @@ template<bool is_const>
 const EntityManager::EntityComponentContainerIterator<is_const>& EntityManager::EntityComponentContainerIterator<is_const>::operator++()
 {
     mPointer.mIndex += 1;
-    if (mPointer.mIndex < mManager.mIndex)
-    {
-        mPointer.mVersion = mManager.mVersions.at(mPointer.mIndex);
-    }
-    while (mPointer.mIndex < mManager.mEntityComponents.size())
-    {
-        if (mPointer.mIndex < mManager.mIndex)
-        {
-            mPointer.mVersion = mManager.mVersions.at(mPointer.mIndex);
-        }
-        if (mManager.EntityPointerValid(mPointer))
-        {
+    IterateToNextValidEntity();
+    return *this;
+}
 
-            break;
-        }
+template<bool is_const>
+void EntityManager::EntityComponentContainerIterator<is_const>::IterateToNextValidEntity()
+{
+    while (mPointer.mIndex < mManager.mIndex && std::find(mManager.mFreeIndexes.begin(), mManager.mFreeIndexes.end(), mPointer.mIndex) != mManager.mFreeIndexes.end())
+    {
         mPointer.mIndex += 1;
     }
-    return *this;
+    if (mPointer.mIndex < mManager.mIndex)
+    {
+        mPointer.mVersion = mManager.mVersions[mPointer.mIndex];
+    }
 }
