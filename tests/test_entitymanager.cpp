@@ -1,8 +1,9 @@
+#include <random>
 #include <cstdint>
 #include <fstream>
 #include <gtest/gtest.h>
 
-#include <core/entitymanager.hpp>
+#include "core/entitymanager.hpp"
 
 #include "test_components/components.hpp"
 
@@ -209,8 +210,14 @@ TEST(EntityManager, ExtremeSparseSaveAndLoad)
 {
     auto manager = CreateEntityManager();
     std::vector<Entity> entities;
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> distribution(0, 15);
     for (auto i = 0; i < 1000; i++)
     {
+        for (auto j = 0; j < distribution(generator); j++)
+        {
+            manager->CreateEntity().Destroy();
+        }
         entities.emplace_back(manager->CreateEntity());
         manager->CreateEntity().Destroy();
     }
