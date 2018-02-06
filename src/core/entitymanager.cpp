@@ -53,12 +53,7 @@ void EntityManager::Serialize(std::ostream& os) const
 
 void EntityManager::Deserialize(std::istream& is)
 {
-
-    mNextIndex = 0;
-    mVersions.clear();
-    mFreeIndexes.clear();
-    mEntityComponents.clear(); // TODO: clear entity manager
-
+    Clear();
     enum class ParsingState
     {
         eEntity,
@@ -188,4 +183,17 @@ EntityManager::ConstIterator EntityManager::begin() const
 EntityManager::ConstIterator EntityManager::end() const
 {
     return { *this, static_cast<Entity::PointerSize>(mEntityComponents.size()) };
+}
+
+void EntityManager::Clear()
+{
+    mNextIndex = 0;
+    mVersions.clear();
+    mFreeIndexes.clear();
+    mEntityComponents.clear();
+}
+
+std::size_t EntityManager::Size() const
+{
+    return mEntityComponents.size() - mFreeIndexes.size();
 }

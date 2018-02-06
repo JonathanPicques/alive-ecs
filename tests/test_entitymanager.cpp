@@ -68,11 +68,35 @@ TEST(EntityManager, EntityManager_With)
 
 }
 
+TEST(EntityManager, Clear)
+{
+    auto manager = CreateEntityManager();
+    manager->CreateEntity().Destroy();
+    manager->CreateEntity();
+    manager->CreateEntity();
+    manager->CreateEntity();
+    manager->CreateEntity().Destroy();
+    manager->CreateEntity().Destroy();
+    manager->CreateEntity().Destroy();
+    manager->CreateEntity();
+    manager->CreateEntity().Destroy();
+    manager->CreateEntity().Destroy();
+    manager->CreateEntity().Destroy();
+    manager->CreateEntity();
+    manager->CreateEntity();
+    manager->CreateEntity();
+    manager->CreateEntity();
+
+    EXPECT_EQ(8, manager->Size());
+    manager->Clear();
+    EXPECT_EQ(0, manager->Size());
+}
+
 TEST(EntityManager, SaveAndLoad)
 {
     auto manager = CreateEntityManager();
 
-    auto entity1 = manager->CreateEntity(); // 0:1
+    auto entity1 = manager->CreateEntity();
     entity1.AddComponent<DummyComponent>();
     entity1.AddComponent<PhysicsComponent>();
     auto transform = entity1.AddComponent<TransformComponent>();

@@ -134,6 +134,10 @@ public:
     ConstIterator begin() const;
     ConstIterator end() const;
 
+public:
+    void Clear();
+    std::size_t Size() const;
+
 private:
     template<typename C>
     C* EntityGetComponent(const Entity::Pointer& entityPointer);
