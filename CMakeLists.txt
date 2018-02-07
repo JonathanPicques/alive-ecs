@@ -33,6 +33,7 @@ add_executable(alive_tests
         tests/test_systems.cpp
         tests/test_entities.cpp
         tests/test_lifecycle.cpp
+        tests/test_performance.cpp
         tests/test_entitymanager.cpp)
 add_subdirectory(tests/googletest)
 target_link_libraries(alive_tests alive_ecs gtest_main)
