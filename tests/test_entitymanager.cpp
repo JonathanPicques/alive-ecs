@@ -7,7 +7,7 @@
 
 #include "test_components/components.hpp"
 
-TEST(EntityManager, EntityManager_With)
+TEST(EntityManager, AnyAndWith)
 {
     auto manager = CreateEntityManager();
 
@@ -19,6 +19,19 @@ TEST(EntityManager, EntityManager_With)
     auto transform2 = entity2.AddComponent<TransformComponent>();
 
     std::uint8_t count = 0;
+
+    entity.With<PhysicsComponent>([&](auto physics)
+                                  {
+                                      EXPECT_EQ(physics, physics1);
+                                      count += 1;
+                                  });
+
+    entity.Any<PhysicsComponent, TransformComponent>([&](auto physics, auto transform)
+                                  {
+                                      EXPECT_EQ(physics, physics1);
+                                      EXPECT_EQ(nullptr, transform);
+                                      count += 1;
+                                  });
 
     manager->With<PhysicsComponent>([&](auto e, auto physics)
                                     {
@@ -64,7 +77,7 @@ TEST(EntityManager, EntityManager_With)
                                                            count += 1;
                                                        });
 
-    EXPECT_EQ(count, 5);
+    EXPECT_EQ(count, 7);
 
 }
 
