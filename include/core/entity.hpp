@@ -22,7 +22,8 @@ public:
     Entity& operator=(Entity const&) = default;
 
 public:
-    Entity(PointerSize index, PointerSize version, EntityManager* manager);
+    Entity(EntityManager* manager); // NOLINT
+    Entity(EntityManager* manager, PointerSize index, PointerSize version);
 
 public:
     bool IsValid() const;
@@ -65,7 +66,7 @@ public:
     friend bool operator==(const Entity& a, const Entity& b);
 
 private:
+    EntityManager* mManager = nullptr;
     PointerSize mIndex = 0;
     PointerSize mVersion = 0;
-    EntityManager* mManager = nullptr;
 };

@@ -1,14 +1,19 @@
 #include "core/entity.hpp"
 #include "core/entitymanager.hpp"
 
-Entity::Entity(PointerSize index, PointerSize version, EntityManager* manager) : mIndex(index), mVersion(version), mManager(manager)
+Entity::Entity(EntityManager* manager) : mManager(manager)
+{
+
+}
+
+Entity::Entity(EntityManager* manager, PointerSize index, PointerSize version) : mManager(manager), mIndex(index), mVersion(version)
 {
 
 }
 
 bool Entity::IsValid() const
 {
-    return mManager->IsEntityPointerValid(*this);
+    return mManager != nullptr && mManager->IsEntityPointerValid(*this);
 }
 
 Entity::operator bool() const

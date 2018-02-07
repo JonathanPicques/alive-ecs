@@ -26,11 +26,14 @@ TEST(Entities, CreateDestroyEntities)
     EXPECT_TRUE(entity5.IsValid());
     EXPECT_FALSE(entity2.IsValid());
 
+    EXPECT_ANY_THROW(entity.Destroy());
+
     // bool operator
     EXPECT_TRUE(entity3);
     EXPECT_FALSE(entity2);
 
-    EXPECT_ANY_THROW(entity.Destroy());
+    // invalid entity
+    EXPECT_FALSE(Entity(manager.get()));
 }
 
 TEST(Components, AddComponent)
@@ -67,6 +70,13 @@ TEST(Components, GetComponent)
 
     EXPECT_EQ(entity.GetComponent<TransformComponent>()->GetX(), 32.0f);
     EXPECT_EQ(entity.GetComponent<TransformComponent>()->GetY(), 64.0f);
+
+    const auto component3 = entity.GetComponent<TransformComponent>();
+
+    EXPECT_EQ(component1, component3);
+    EXPECT_EQ(component2, component3);
+    EXPECT_EQ(component3->GetX(), 32.0f);
+    EXPECT_EQ(component3->GetY(), 64.0f);
 }
 
 TEST(Components, RemoveComponent)
