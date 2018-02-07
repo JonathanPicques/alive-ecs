@@ -8,23 +8,27 @@ TEST(Entities, CreateDestroyEntities)
 {
     auto manager = CreateEntityManager();
     auto entity = manager->CreateEntity();
-    EXPECT_FALSE(entity.IsDestroyed());
+    EXPECT_TRUE(entity.IsValid());
     entity.Destroy();
-    EXPECT_TRUE(entity.IsDestroyed());
+    EXPECT_FALSE(entity.IsValid());
     EXPECT_ANY_THROW(entity.Destroy());
 
     auto entity2 = manager->CreateEntity();
-    EXPECT_FALSE(entity2.IsDestroyed());
+    EXPECT_TRUE(entity2.IsValid());
     entity2.Destroy();
-    EXPECT_TRUE(entity2.IsDestroyed());
+    EXPECT_FALSE(entity2.IsValid());
 
     auto entity3 = manager->CreateEntity();
     auto entity4 = manager->CreateEntity();
     auto entity5 = manager->CreateEntity();
-    EXPECT_FALSE(entity3.IsDestroyed());
-    EXPECT_FALSE(entity4.IsDestroyed());
-    EXPECT_FALSE(entity5.IsDestroyed());
-    EXPECT_TRUE(entity2.IsDestroyed());
+    EXPECT_TRUE(entity3.IsValid());
+    EXPECT_TRUE(entity4.IsValid());
+    EXPECT_TRUE(entity5.IsValid());
+    EXPECT_FALSE(entity2.IsValid());
+
+    // bool operator
+    EXPECT_TRUE(entity3);
+    EXPECT_FALSE(entity2);
 
     EXPECT_ANY_THROW(entity.Destroy());
 }

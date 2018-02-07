@@ -25,7 +25,8 @@ public:
     Entity(PointerSize index, PointerSize version, EntityManager* manager);
 
 public:
-    friend bool operator==(const Entity& a, const Entity& b);
+    bool IsValid() const;
+    explicit operator bool() const;
 
 public:
     template<typename C>
@@ -56,10 +57,12 @@ public:
 
 public:
     void Destroy();
-    bool IsDestroyed() const;
 
 public:
     EntityManager* GetManager();
+
+public:
+    friend bool operator==(const Entity& a, const Entity& b);
 
 private:
     PointerSize mIndex = 0;

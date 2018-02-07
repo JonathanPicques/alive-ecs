@@ -118,14 +118,14 @@ void EntityManager::Deserialize(std::istream& is)
     }
 }
 
-bool EntityManager::EntityPointerValid(const Entity& entityPointer) const
+bool EntityManager::IsEntityPointerValid(const Entity& entityPointer) const
 {
     return entityPointer.mIndex < mVersions.size() && mVersions[entityPointer.mIndex] == entityPointer.mVersion;
 }
 
 void EntityManager::AssertEntityPointerValid(const Entity& entityPointer) const
 {
-    if (!EntityPointerValid(entityPointer))
+    if (!IsEntityPointerValid(entityPointer))
     {
         std::stringstream errorFormat;
         errorFormat << "Entity invalid: " << entityPointer.mIndex << "(" << entityPointer.mIndex << ")";

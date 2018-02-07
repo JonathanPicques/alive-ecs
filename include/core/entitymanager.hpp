@@ -69,7 +69,7 @@ public:
     void Deserialize(std::istream& is);
 
 private:
-    bool EntityPointerValid(const Entity& entityPointer) const;
+    bool IsEntityPointerValid(const Entity& entityPointer) const;
     void AssertEntityPointerValid(const Entity& entityPointer) const;
 
 public:
