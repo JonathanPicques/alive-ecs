@@ -1,8 +1,7 @@
 #pragma once
 
 #include <string>
-#include <ostream>
-#include <istream>
+#include <iosfwd>
 
 #define DECLARE_COMPONENT(NAME) static constexpr const char* ComponentName{#NAME}; virtual std::string GetComponentName() const override
 #define DEFINE_COMPONENT(NAME) std::string NAME::GetComponentName() const { return NAME::ComponentName; } constexpr const char* NAME::ComponentName

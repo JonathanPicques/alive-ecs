@@ -1,3 +1,5 @@
+#include <ostream>
+#include <istream>
 #include <cstring>
 #include <algorithm>
 

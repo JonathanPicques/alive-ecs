@@ -1,3 +1,6 @@
+#include <ostream>
+#include <istream>
+
 #include "core/component.hpp"
 
 DEFINE_ROOT_COMPONENT(Component);

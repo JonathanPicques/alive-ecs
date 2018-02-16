@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <iosfwd>
 #include <utility>
 #include <functional>
 

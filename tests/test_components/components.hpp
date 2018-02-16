@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <ostream>
+#include <istream>
 
 #include <core/component.hpp>
 
