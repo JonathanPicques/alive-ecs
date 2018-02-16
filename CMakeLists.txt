@@ -12,7 +12,7 @@ add_library(alive_ecs
         src/core/entity.cpp
         include/core/entity.hpp
         src/core/component.cpp
-        include/core/component.hpp tests/test_systems/systems.cpp tests/test_systems/systems.hpp)
+        include/core/component.hpp)
 target_include_directories(alive_ecs
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
