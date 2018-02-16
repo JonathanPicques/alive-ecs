@@ -1,8 +1,7 @@
 #include <cstring>
-#include <sstream>
 #include <ostream>
 #include <istream>
-#include <cstring>
+#include <sstream>
 #include <algorithm>
 
 #include "core/entitymanager.hpp"
