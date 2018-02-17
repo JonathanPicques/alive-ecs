@@ -122,8 +122,8 @@ public:
 
     private:
         ManagerType& mManager;
-        Entity::PointerSize mIndex;
-        Entity::PointerSize mVersion;
+        Entity::PointerSize mIndex = 0;
+        Entity::PointerSize mVersion = 0;
     };
 
 public:
@@ -171,14 +171,12 @@ private:
     bool EntityWith(const Entity& entityPointer, typename std::common_type<std::function<void(C* ...)>>::type view);
 
 private:
-    Entity::PointerSize mNextIndex = {};
-    std::vector<Entity::PointerSize> mVersions = {};
-    std::vector<Entity::PointerSize> mFreeIndexes = {};
-    std::vector<std::vector<std::unique_ptr<Component>>> mEntityComponents = {};
-
-private:
-    std::vector<std::unique_ptr<System>> mSystems = {};
-    std::unordered_map<std::string, std::function<std::unique_ptr<Component>()>> mRegisteredComponents = {};
+    Entity::PointerSize mNextIndex = 0;
+    std::vector<Entity::PointerSize> mVersions;
+    std::vector<Entity::PointerSize> mFreeIndexes;
+    std::vector<std::unique_ptr<System>> mSystems;
+    std::vector<std::vector<std::unique_ptr<Component>>> mEntityComponents;
+    std::unordered_map<std::string, std::function<std::unique_ptr<Component>()>> mRegisteredComponents;
 };
 
 template<typename C>

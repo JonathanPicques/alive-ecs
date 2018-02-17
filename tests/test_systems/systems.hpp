@@ -11,9 +11,6 @@ public:
     WorldStateSystem(char* inputState, char* networkState);
 
 public:
-    void Update() final;
-
-public:
     char* mInputState = nullptr;
     char* mNetworkState = nullptr;
 };

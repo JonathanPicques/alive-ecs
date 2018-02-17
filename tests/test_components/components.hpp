@@ -1,8 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <ostream>
-#include <istream>
+#include <iosfwd>
 
 #include <core/component.hpp>
 
@@ -31,22 +30,12 @@ public:
     {}
 
 public:
-    void Serialize(std::ostream& out) const override
-    {
-        static_assert(std::is_pod<decltype(TransformComponent::mData)>::value, "TransformComponent is not POD");
-        out.write((char*) &mData, sizeof(mData));
-    }
-    void Deserialize(std::istream& is) override
-    {
-        static_assert(std::is_pod<decltype(TransformComponent::mData)>::value, "TransformComponent is not POD");
-        is.read((char*) &mData, sizeof(mData));
-    }
+    void Serialize(std::ostream& out) const override;
+    void Deserialize(std::istream& is) override;
 
 public:
-    float GetX() const
-    { return mData.x; }
-    float GetY() const
-    { return mData.y; }
+    float GetX() const;
+    float GetY() const;
 
 public:
     struct
