@@ -34,6 +34,20 @@ void EntityManager::DestroyEntity(Entity& entityPointer)
     mFreeIndexes.push_back(entityPointer.mIndex);
 }
 
+void EntityManager::ConstructSystem(System* system)
+{
+    system->mManager = this;
+    system->OnLoad();
+}
+
+void EntityManager::ResolveSystemDependencies()
+{
+    for (auto& system : mSystems)
+    {
+        system->OnResolveDependencies();
+    }
+}
+
 void EntityManager::Serialize(std::ostream& os) const
 {
     for (auto entityPointer : *this)

@@ -29,3 +29,13 @@ TEST(System, RemoveSystem)
     EXPECT_ANY_THROW((manager.RemoveSystem<WorldStateSystem>()));
     EXPECT_ANY_THROW((manager.RemoveSystem<WorldStateSystem>()));
 }
+
+TEST(System, Lifecycle)
+{
+    EntityManager manager;
+    auto gridMapSystem = manager.AddSystem<GridMapSystem>();
+    auto worldStateSystem = manager.AddSystem<WorldStateSystem>(nullptr, nullptr);
+    EXPECT_EQ(nullptr, gridMapSystem->mWorldStateSystem);
+    manager.ResolveSystemDependencies();
+    EXPECT_EQ(worldStateSystem, gridMapSystem->mWorldStateSystem);
+}

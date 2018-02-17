@@ -14,3 +14,16 @@ public:
     char* mInputState = nullptr;
     char* mNetworkState = nullptr;
 };
+
+class GridMapSystem final : public System
+{
+public:
+    DECLARE_SYSTEM(GridMapSystem);
+
+public:
+    void OnLoad() final;
+    void OnResolveDependencies() final;
+
+public:
+    WorldStateSystem *mWorldStateSystem;
+};

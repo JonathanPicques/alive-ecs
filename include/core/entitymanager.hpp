@@ -46,6 +46,12 @@ public:
     template<typename S>
     bool HasSystem();
 
+private:
+    void ConstructSystem(System* component);
+
+public:
+    void ResolveSystemDependencies();
+
 public:
     template<typename C>
     void RegisterComponent();
@@ -271,7 +277,7 @@ S* EntityManager::AddSystem(Args&& ... args)
     auto system = std::make_unique<S>(std::forward<Args>(args)...);
     auto systemPtr = system.get();
     mSystems.emplace_back(std::move(system));
-    systemPtr->mManager = this;
+    ConstructSystem(systemPtr);
     return systemPtr;
 }
 

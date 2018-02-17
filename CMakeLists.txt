@@ -32,9 +32,9 @@ add_executable(alive_tests
         tests/test_components/components.hpp
         tests/test_systems.cpp
         tests/test_entities.cpp
-        tests/test_lifecycle.cpp
         tests/test_performance.cpp
-        tests/test_entitymanager.cpp)
+        tests/test_entitymanager.cpp
+        tests/test_entities_lifecycle.cpp)
 add_subdirectory(tests/googletest)
 target_link_libraries(alive_tests alive_ecs gtest_main)
 target_include_directories(alive_tests PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
